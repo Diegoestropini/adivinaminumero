@@ -302,10 +302,15 @@
 
     <div class="grid two" style="margin-top:18px;align-items:flex-start;">
       <div style="display:flex;flex-direction:column;gap:10px;">
-        <label>Modo 2: dale pistas intento a intento</label>
+        <label>Modo 2: juega por turnos contra el agente</label>
         <div class="inline-group">
           <button id="startInteractiveBtn">Nueva sesión de pistas</button>
-          <span class="pill muted">El agente propondrá un número. Indica cuántos dígitos acertó (bien/mal colocados).</span>
+          <span class="pill muted">El agente propondrá un número y también guardará uno secreto. Se alternan los turnos.</span>
+        </div>
+        <div class="inline-group" style="align-items:center;">
+          <label style="margin:0;">¿Quién empieza?</label>
+          <label><input type="radio" name="starter" value="agent" checked /> El agente</label>
+          <label><input type="radio" name="starter" value="user" /> Tú</label>
         </div>
         <div class="inline-group">
           <div>
@@ -321,6 +326,13 @@
             <input id="cowsInput" type="number" min="0" max="4" value="0" />
           </div>
           <button id="feedbackBtn" class="secondary">Enviar pista y siguiente intento</button>
+        </div>
+        <div class="inline-group">
+          <div>
+            <label for="userGuessInput">Tu intento al número del agente</label>
+            <input id="userGuessInput" type="text" placeholder="Ej: 5731" />
+          </div>
+          <button id="userGuessBtn">Comprobar mi intento</button>
         </div>
         <div class="hint">Ejemplo: si el agente dice 1234 y tu número es 1325, ingresa 2 bien colocados y 1 mal colocado.</div>
       </div>
@@ -524,6 +536,8 @@
     const feedbackBtn = document.getElementById("feedbackBtn");
     const bullsInput = document.getElementById("bullsInput");
     const cowsInput = document.getElementById("cowsInput");
+    const userGuessInput = document.getElementById("userGuessInput");
+    const userGuessBtn = document.getElementById("userGuessBtn");
 
     let interactiveState = { active: false, candidates: [], lastGuess: null, steps: 0 };
 
@@ -593,6 +607,7 @@
       document.getElementById("guessBtn").disabled = disabled;
       startInteractiveBtn.disabled = disabled;
       feedbackBtn.disabled = disabled;
+      userGuessBtn.disabled = disabled;
     }
 
     function handleReset() {
@@ -605,16 +620,37 @@
     }
 
     function startInteractiveSession() {
-      interactiveState = { active: true, candidates: [...agent.allNumbers], lastGuess: null, steps: 0 };
+      const starter = document.querySelector('input[name="starter"]:checked')?.value || "agent";
+      interactiveState = {
+        active: true,
+        candidates: [...agent.allNumbers],
+        lastGuess: null,
+        steps: 0,
+        agentSecret: agent.allNumbers[Math.floor(Math.random() * agent.allNumbers.length)],
+        turn: starter,
+        agentAttempts: 0,
+        userAttempts: 0,
+        winner: null,
+      };
       bullsInput.value = 0;
       cowsInput.value = 0;
       currentGuessEl.textContent = "----";
+      userGuessInput.value = "";
       interactiveLog.textContent = "Sesión iniciada. Usa los campos para indicar pistas del número secreto.";
-      requestNextGuess();
+      appendInteractiveLog(
+        `Nueva partida. El agente ya eligió su número secreto. Empieza: ${
+          starter === "agent" ? "el agente" : "tú"
+        }.`
+      );
+      if (starter === "agent") {
+        requestNextGuess();
+      } else {
+        promptUserTurn();
+      }
     }
 
     function requestNextGuess() {
-      if (!interactiveState.active) return;
+      if (!interactiveState.active || interactiveState.turn !== "agent") return;
       if (!interactiveState.candidates.length) {
         interactiveLog.textContent = "Sin candidatos consistentes. Verifica las pistas ingresadas.";
         currentGuessEl.textContent = "----";
@@ -628,8 +664,14 @@
       appendInteractiveLog(`Intento ${interactiveState.steps}: el agente propone ${guess}.`);
     }
 
+    function promptUserTurn() {
+      if (!interactiveState.active || interactiveState.turn !== "user") return;
+      currentGuessEl.textContent = "Tu turno";
+      appendInteractiveLog("Es tu turno: ingresa un número para intentar adivinar al agente.");
+    }
+
     function handleFeedback() {
-      if (!interactiveState.active || !interactiveState.lastGuess) {
+      if (!interactiveState.active || interactiveState.turn !== "agent" || !interactiveState.lastGuess) {
         interactiveLog.textContent = "Inicia una sesión de pistas primero.";
         return;
       }
@@ -648,9 +690,21 @@
       );
 
       if (bulls === 4) {
-        interactiveLog.textContent = `¡El agente acertó el número ${interactiveState.lastGuess}!`;
+        interactiveState.winner = "agente";
+        interactiveLog.textContent = `¡El agente acertó el número ${interactiveState.lastGuess}! (Gana el agente)`;
         currentGuessEl.textContent = interactiveState.lastGuess;
         interactiveState.active = false;
+        return;
+      }
+
+      interactiveState.agentAttempts += 1;
+
+      if (interactiveState.agentAttempts >= agent.maxAttempts) {
+        interactiveState.winner = "usuario";
+        interactiveState.active = false;
+        interactiveLog.textContent =
+          "El agente agotó sus intentos sin acertar tu número. ¡Ganaste la partida!";
+        currentGuessEl.textContent = "----";
         return;
       }
 
@@ -663,6 +717,45 @@
         return;
       }
 
+      interactiveState.turn = "user";
+      promptUserTurn();
+    }
+
+    function handleUserGuess() {
+      if (!interactiveState.active || interactiveState.turn !== "user") {
+        interactiveLog.textContent = "Espera a que sea tu turno o inicia una sesión.";
+        return;
+      }
+
+      const guess = userGuessInput.value.trim();
+      if (!validateSecret(guess)) {
+        interactiveLog.textContent = "Ingresa un número válido: 4 dígitos únicos y sin empezar en 0.";
+        return;
+      }
+
+      const feedback = evaluateGuess(interactiveState.agentSecret, guess);
+      interactiveState.userAttempts += 1;
+      appendInteractiveLog(
+        `Tu intento ${interactiveState.userAttempts}: ${guess} -> ${feedback.bulls} bien colocados, ${feedback.cows} mal colocados.`
+      );
+
+      if (feedback.bulls === 4) {
+        interactiveState.winner = "usuario";
+        interactiveState.active = false;
+        currentGuessEl.textContent = guess;
+        interactiveLog.textContent = `¡Adivinaste el número del agente (${guess})! Ganas la partida.`;
+        return;
+      }
+
+      if (interactiveState.userAttempts >= agent.maxAttempts) {
+        interactiveState.active = false;
+        interactiveState.winner = "agente";
+        interactiveLog.textContent =
+          "Agotaste tus intentos sin adivinar el número del agente. Gana el agente esta vez.";
+        return;
+      }
+
+      interactiveState.turn = "agent";
       requestNextGuess();
     }
 
@@ -688,6 +781,7 @@
     document.getElementById("guessBtn").addEventListener("click", handleGuess);
     startInteractiveBtn.addEventListener("click", startInteractiveSession);
     feedbackBtn.addEventListener("click", handleFeedback);
+    userGuessBtn.addEventListener("click", handleUserGuess);
     themeToggle.addEventListener("click", () => {
       const current = document.body.getAttribute("data-theme") === "dark" ? "light" : "dark";
       applyTheme(current);
