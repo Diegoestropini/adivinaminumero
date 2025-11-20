@@ -246,19 +246,23 @@
     <div class="grid two">
       <div>
         <label for="episodes">Episodios</label>
-        <input id="episodes" type="number" min="100" step="100" value="2000" />
+        <input id="episodes" type="number" min="100" step="100" value="10000" />
       </div>
       <div>
-        <label for="epsilon">Exploración (ε)</label>
-        <input id="epsilon" type="number" min="0" max="1" step="0.05" value="0.2" />
+        <label for="epsilonStart">Exploración inicial (ε)</label>
+        <input id="epsilonStart" type="number" min="0" max="1" step="0.05" value="0.8" />
+      </div>
+      <div>
+        <label for="epsilonEnd">Exploración final (ε)</label>
+        <input id="epsilonEnd" type="number" min="0" max="1" step="0.05" value="0.05" />
       </div>
       <div>
         <label for="alpha">Tasa de aprendizaje (α)</label>
-        <input id="alpha" type="number" min="0" max="1" step="0.05" value="0.5" />
+        <input id="alpha" type="number" min="0" max="1" step="0.05" value="0.2" />
       </div>
       <div>
         <label for="gamma">Factor de descuento (γ)</label>
-        <input id="gamma" type="number" min="0" max="1" step="0.05" value="0.4" />
+        <input id="gamma" type="number" min="0" max="1" step="0.05" value="0.9" />
       </div>
       <div>
         <label for="maxAttempts">Intentos máximos por episodio</label>
@@ -377,16 +381,18 @@
       constructor() {
         this.allNumbers = allCandidates();
         this.qValues = new Map();
-        this.alpha = 0.5;
-        this.gamma = 0.4;
-        this.epsilon = 0.2;
+        this.alpha = 0.2;
+        this.gamma = 0.9;
+        this.epsilonStart = 0.8;
+        this.epsilonEnd = 0.05;
         this.maxAttempts = 8;
       }
 
-      setHyperParams({ alpha, gamma, epsilon, maxAttempts }) {
+      setHyperParams({ alpha, gamma, epsilonStart, epsilonEnd, maxAttempts }) {
         this.alpha = Number(alpha);
         this.gamma = Number(gamma);
-        this.epsilon = Number(epsilon);
+        this.epsilonStart = Number(epsilonStart);
+        this.epsilonEnd = Number(epsilonEnd);
         this.maxAttempts = Number(maxAttempts);
       }
 
@@ -398,7 +404,7 @@
         return this.qValues.get(guess) ?? 0;
       }
 
-      pickGuess(candidates, exploration = this.epsilon) {
+      pickGuess(candidates, exploration = this.epsilonStart) {
         if (!candidates.length) {
           return this.allNumbers[Math.floor(Math.random() * this.allNumbers.length)];
         }
@@ -425,7 +431,7 @@
         this.qValues.set(guess, updated);
       }
 
-      runEpisode(secretNumber) {
+      runEpisode(secretNumber, exploration = this.epsilonStart) {
         const target = secretNumber || this.allNumbers[Math.floor(Math.random() * this.allNumbers.length)];
         let candidates = [...this.allNumbers];
         let attempts = 0;
@@ -433,7 +439,7 @@
 
         while (attempts < this.maxAttempts) {
           attempts += 1;
-          const guess = this.pickGuess(candidates);
+          const guess = this.pickGuess(candidates, exploration);
           const feedback = evaluateGuess(target, guess);
           const reward = feedback.bulls * 2 + feedback.cows * 0.5 - 0.1;
           candidates = filterCandidates(candidates, guess, feedback);
@@ -452,9 +458,12 @@
         let successes = 0;
         let totalAttempts = 0;
         const reportEvery = Math.max(1, Math.floor(episodes / 50));
+        const decaySteps = Math.max(1, episodes - 1);
 
         for (let i = 1; i <= episodes; i++) {
-          const { attempts, success } = this.runEpisode();
+          const decayRatio = (i - 1) / decaySteps;
+          const epsilon = this.epsilonStart - (this.epsilonStart - this.epsilonEnd) * decayRatio;
+          const { attempts, success } = this.runEpisode(undefined, epsilon);
           totalAttempts += attempts;
           if (success) successes += 1;
 
@@ -550,14 +559,17 @@
 
     async function handleTrain() {
       const episodes = Number(document.getElementById("episodes").value) || 1000;
-      const epsilon = Number(document.getElementById("epsilon").value) || 0.2;
-      const alpha = Number(document.getElementById("alpha").value) || 0.5;
-      const gamma = Number(document.getElementById("gamma").value) || 0.4;
+      const epsilonStart = Number(document.getElementById("epsilonStart").value) || 0.8;
+      const epsilonEnd = Number(document.getElementById("epsilonEnd").value) || 0.05;
+      const alpha = Number(document.getElementById("alpha").value) || 0.2;
+      const gamma = Number(document.getElementById("gamma").value) || 0.9;
       const maxAttempts = Number(document.getElementById("maxAttempts").value) || 8;
 
-      agent.setHyperParams({ alpha, gamma, epsilon, maxAttempts });
+      agent.setHyperParams({ alpha, gamma, epsilonStart, epsilonEnd, maxAttempts });
 
-      appendTrainLog(`Entrenamiento iniciado: ${episodes} episodios, ε=${epsilon}, α=${alpha}, γ=${gamma}.`);
+      appendTrainLog(
+        `Entrenamiento iniciado: ${episodes} episodios, ε ${epsilonStart} → ${epsilonEnd}, α=${alpha}, γ=${gamma}.`
+      );
       toggleButtons(true);
 
       const stats = await agent.train(episodes, ({ episode, progress, successRate, avgAttempts }) => {
