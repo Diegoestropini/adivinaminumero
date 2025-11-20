@@ -158,8 +158,60 @@
       border-radius: 10px;
       max-height: 320px;
       overflow-y: auto;
-      white-space: pre-wrap;
       border: 1px solid var(--border);
+    }
+
+    .log-entry {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border);
+      background: rgba(148, 163, 184, 0.1);
+    }
+
+    .log-entry.agent {
+      border-color: #2563eb66;
+      background: rgba(37, 99, 235, 0.14);
+    }
+
+    .log-entry.user {
+      border-color: #16a34a66;
+      background: rgba(22, 163, 74, 0.14);
+    }
+
+    .log-badge {
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      color: white;
+      min-width: 72px;
+      text-align: center;
+    }
+
+    .log-entry.agent .log-badge {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    }
+
+    .log-entry.user .log-badge {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+    }
+
+    .log-entry.info .log-badge {
+      background: linear-gradient(135deg, #94a3b8, #64748b);
+    }
+
+    .log-body {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      color: var(--log-text);
+    }
+
+    .log-time {
+      font-size: 12px;
+      color: var(--text-muted);
     }
 
     .progress {
@@ -344,7 +396,7 @@
         <div class="hint">Ejemplo: si el agente dice 1234 y tu número es 1325, ingresa 2 bien colocados y 1 mal colocado.</div>
       </div>
       <div>
-        <div class="log" id="interactiveLog">Pulsa "Nueva sesión de pistas" para comenzar.</div>
+        <div class="log" id="interactiveLog" aria-live="polite"></div>
       </div>
     </div>
   </div>
@@ -564,14 +616,39 @@
 
     let interactiveState = { active: false, candidates: [], lastGuess: null, steps: 0 };
 
+    resetInteractiveLog('Pulsa "Nueva sesión de pistas" para comenzar.');
+
     function appendTrainLog(message) {
       const timestamp = new Date().toLocaleTimeString();
       trainLog.textContent = `[${timestamp}] ${message}\n` + trainLog.textContent;
     }
 
-    function appendInteractiveLog(message) {
-      const timestamp = new Date().toLocaleTimeString();
-      interactiveLog.textContent = `[${timestamp}] ${message}\n` + interactiveLog.textContent;
+    function appendInteractiveLog(message, role = "info") {
+      const entry = document.createElement("div");
+      entry.className = `log-entry ${role}`;
+
+      const badge = document.createElement("span");
+      badge.className = "log-badge";
+      badge.textContent = role === "agent" ? "Agente" : role === "user" ? "Usuario" : "Sistema";
+
+      const body = document.createElement("div");
+      body.className = "log-body";
+
+      const timestamp = document.createElement("span");
+      timestamp.className = "log-time";
+      timestamp.textContent = new Date().toLocaleTimeString();
+
+      const text = document.createElement("span");
+      text.textContent = message;
+
+      body.append(timestamp, text);
+      entry.append(badge, body);
+      interactiveLog.prepend(entry);
+    }
+
+    function resetInteractiveLog(message) {
+      interactiveLog.innerHTML = "";
+      appendInteractiveLog(message, "info");
     }
 
     function applyTheme(theme) {
@@ -647,7 +724,10 @@
       const chosenAgentSecret = agentSecretInput.value.trim();
 
       if (chosenAgentSecret && !validateSecret(chosenAgentSecret)) {
-        interactiveLog.textContent = "El número del agente no es válido. Usa 4 dígitos únicos y sin empezar en 0.";
+        appendInteractiveLog(
+          "El número del agente no es válido. Usa 4 dígitos únicos y sin empezar en 0.",
+          "info"
+        );
         return;
       }
 
@@ -667,7 +747,7 @@
       cowsInput.value = 0;
       currentGuessEl.textContent = "----";
       userGuessInput.value = "";
-      interactiveLog.textContent = "Sesión iniciada. Usa los campos para indicar pistas del número secreto.";
+      resetInteractiveLog("Sesión iniciada. Usa los campos para indicar pistas del número secreto.");
       appendInteractiveLog(
         `Nueva partida. El agente usará ${
           chosenAgentSecret ? "el número que elegiste" : "un número aleatorio"
@@ -683,7 +763,7 @@
     function requestNextGuess() {
       if (!interactiveState.active || interactiveState.turn !== "agent") return;
       if (!interactiveState.candidates.length) {
-        interactiveLog.textContent = "Sin candidatos consistentes. Verifica las pistas ingresadas.";
+        appendInteractiveLog("Sin candidatos consistentes. Verifica las pistas ingresadas.");
         currentGuessEl.textContent = "----";
         interactiveState.active = false;
         return;
@@ -692,7 +772,7 @@
       const guess = agent.pickGuess(interactiveState.candidates, 0);
       interactiveState.lastGuess = guess;
       currentGuessEl.textContent = guess;
-      appendInteractiveLog(`Intento ${interactiveState.steps}: el agente propone ${guess}.`);
+      appendInteractiveLog(`Intento ${interactiveState.steps}: el agente propone ${guess}.`, "agent");
     }
 
     function promptUserTurn() {
@@ -703,7 +783,7 @@
 
     function handleFeedback() {
       if (!interactiveState.active || interactiveState.turn !== "agent" || !interactiveState.lastGuess) {
-        interactiveLog.textContent = "Inicia una sesión de pistas primero.";
+        appendInteractiveLog("Inicia una sesión de pistas primero.");
         return;
       }
 
@@ -711,40 +791,52 @@
       const cows = Number(cowsInput.value);
 
       if ([bulls, cows].some((n) => Number.isNaN(n) || n < 0 || n > 4) || bulls + cows > 4) {
-        interactiveLog.textContent = "Valores inválidos. Usa números entre 0 y 4 y que la suma no supere 4.";
+        appendInteractiveLog("Valores inválidos. Usa números entre 0 y 4 y que la suma no supere 4.");
         return;
       }
 
       const feedback = { bulls, cows };
       appendInteractiveLog(
-        `Pistas recibidas para ${interactiveState.lastGuess}: ${bulls} bien colocados, ${cows} mal colocados.`
+        `Pistas recibidas para ${interactiveState.lastGuess}: ${bulls} bien colocados, ${cows} mal colocados.`,
+        "user"
       );
 
       if (bulls === 4) {
         interactiveState.winner = "agente";
-        interactiveLog.textContent = `¡El agente acertó el número ${interactiveState.lastGuess}! (Gana el agente)`;
+        appendInteractiveLog(
+          `¡El agente acertó el número ${interactiveState.lastGuess}! (Gana el agente)`,
+          "agent"
+        );
         currentGuessEl.textContent = interactiveState.lastGuess;
         interactiveState.active = false;
         return;
       }
 
+      const updatedCandidates = filterCandidates(
+        interactiveState.candidates,
+        interactiveState.lastGuess,
+        feedback
+      );
+
+      if (!updatedCandidates.length) {
+        appendInteractiveLog(
+          "Las pistas no son consistentes con los intentos anteriores. Revisa los valores e inténtalo de nuevo.",
+          "info"
+        );
+        return;
+      }
+
+      interactiveState.candidates = updatedCandidates;
       interactiveState.agentAttempts += 1;
 
       if (interactiveState.agentAttempts >= agent.maxAttempts) {
         interactiveState.winner = "usuario";
         interactiveState.active = false;
-        interactiveLog.textContent =
-          "El agente agotó sus intentos sin acertar tu número. ¡Ganaste la partida!";
+        appendInteractiveLog(
+          "El agente agotó sus intentos sin acertar tu número. ¡Ganaste la partida!",
+          "info"
+        );
         currentGuessEl.textContent = "----";
-        return;
-      }
-
-      interactiveState.candidates = filterCandidates(interactiveState.candidates, interactiveState.lastGuess, feedback);
-
-      if (!interactiveState.candidates.length) {
-        interactiveLog.textContent = "Sin candidatos consistentes tras las pistas. Revisa los valores ingresados.";
-        currentGuessEl.textContent = "----";
-        interactiveState.active = false;
         return;
       }
 
@@ -754,35 +846,38 @@
 
     function handleUserGuess() {
       if (!interactiveState.active || interactiveState.turn !== "user") {
-        interactiveLog.textContent = "Espera a que sea tu turno o inicia una sesión.";
+        appendInteractiveLog("Espera a que sea tu turno o inicia una sesión.");
         return;
       }
 
       const guess = userGuessInput.value.trim();
       if (!validateSecret(guess)) {
-        interactiveLog.textContent = "Ingresa un número válido: 4 dígitos únicos y sin empezar en 0.";
+        appendInteractiveLog("Ingresa un número válido: 4 dígitos únicos y sin empezar en 0.");
         return;
       }
 
       const feedback = evaluateGuess(interactiveState.agentSecret, guess);
       interactiveState.userAttempts += 1;
       appendInteractiveLog(
-        `Tu intento ${interactiveState.userAttempts}: ${guess} -> ${feedback.bulls} bien colocados, ${feedback.cows} mal colocados.`
+        `Tu intento ${interactiveState.userAttempts}: ${guess} -> ${feedback.bulls} bien colocados, ${feedback.cows} mal colocados.`,
+        "user"
       );
 
       if (feedback.bulls === 4) {
         interactiveState.winner = "usuario";
         interactiveState.active = false;
         currentGuessEl.textContent = guess;
-        interactiveLog.textContent = `¡Adivinaste el número del agente (${guess})! Ganas la partida.`;
+        appendInteractiveLog(`¡Adivinaste el número del agente (${guess})! Ganas la partida.`, "user");
         return;
       }
 
       if (interactiveState.userAttempts >= agent.maxAttempts) {
         interactiveState.active = false;
         interactiveState.winner = "agente";
-        interactiveLog.textContent =
-          "Agotaste tus intentos sin adivinar el número del agente. Gana el agente esta vez.";
+        appendInteractiveLog(
+          "Agotaste tus intentos sin adivinar el número del agente. Gana el agente esta vez.",
+          "agent"
+        );
         return;
       }
 
