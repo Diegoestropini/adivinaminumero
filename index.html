@@ -7,15 +7,45 @@
   <style>
     :root {
       font-family: "Segoe UI", Tahoma, sans-serif;
-      color: #1c1e21;
-      background: #f8fafc;
       line-height: 1.5;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --text-primary: #0f172a;
+      --text-muted: #475569;
+      --border: #e1e7ef;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      --pill-bg: #e0f2fe;
+      --pill-border: #bfdbfe;
+      --pill-text: #0f172a;
+      --log-bg: #0f172a;
+      --log-text: #e2e8f0;
+      --progress-bg: #e2e8f0;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #0b1221;
+      --bg-secondary: #111a2e;
+      --text-primary: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #1e293b;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+      --pill-bg: #1e293b;
+      --pill-border: #334155;
+      --pill-text: #e2e8f0;
+      --log-bg: #0b1021;
+      --log-text: #e2e8f0;
+      --progress-bg: #1f2937;
     }
 
     body {
       margin: 0 auto;
       max-width: 1100px;
       padding: 32px 24px 56px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
     h1 {
@@ -27,12 +57,13 @@
     }
 
     .card {
-      background: #ffffff;
+      background: var(--bg-secondary);
       border-radius: 12px;
       padding: 20px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-      border: 1px solid #e1e7ef;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
       margin-top: 16px;
+      transition: background 0.2s ease, border 0.2s ease, box-shadow 0.2s ease;
     }
 
     .grid {
@@ -57,9 +88,15 @@
       width: 100%;
       padding: 10px;
       border-radius: 8px;
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--border);
       font-size: 14px;
       box-sizing: border-box;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+
+    input::placeholder {
+      color: var(--text-muted);
     }
 
     button {
@@ -70,8 +107,12 @@
       color: white;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.08s ease, box-shadow 0.16s ease;
+      transition: transform 0.08s ease, box-shadow 0.16s ease, filter 0.2s ease;
       box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+    }
+
+    button.secondary {
+      background: linear-gradient(135deg, #94a3b8, #64748b);
     }
 
     button:disabled {
@@ -83,6 +124,7 @@
     button:hover:not(:disabled) {
       transform: translateY(-1px);
       box-shadow: 0 12px 24px rgba(37, 99, 235, 0.26);
+      filter: brightness(1.05);
     }
 
     .metrics {
@@ -93,27 +135,35 @@
     }
 
     .pill {
-      background: #e0f2fe;
-      color: #0f172a;
+      background: var(--pill-bg);
+      color: var(--pill-text);
       padding: 10px 14px;
       border-radius: 999px;
       font-weight: 600;
-      border: 1px solid #bfdbfe;
+      border: 1px solid var(--pill-border);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill strong {
+      letter-spacing: 0.5px;
     }
 
     .log {
-      background: #0f172a;
-      color: #e2e8f0;
+      background: var(--log-bg);
+      color: var(--log-text);
       font-family: "SFMono-Regular", "Consolas", monospace;
       padding: 14px;
       border-radius: 10px;
       max-height: 320px;
       overflow-y: auto;
       white-space: pre-wrap;
+      border: 1px solid var(--border);
     }
 
     .progress {
-      background: #e2e8f0;
+      background: var(--progress-bg);
       border-radius: 10px;
       height: 12px;
       overflow: hidden;
@@ -130,14 +180,66 @@
     }
 
     .hint {
-      color: #475569;
+      color: var(--text-muted);
       font-size: 14px;
+    }
+
+    .mode-switch {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .pill.muted {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px dashed var(--border);
+    }
+
+    .pill.success {
+      background: #22c55e1a;
+      border-color: #22c55e55;
+      color: #16a34a;
+    }
+
+    .pill.error {
+      background: #ef44441a;
+      border-color: #ef444466;
+      color: #ef4444;
+    }
+
+    .inline-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .guess-display {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      padding: 12px 18px;
+      border-radius: 10px;
+      min-width: 130px;
+      text-align: center;
+      box-shadow: var(--shadow);
     }
   </style>
 </head>
 <body>
-  <h1>Juego "Adivina mi número" con un agente de RL</h1>
-  <p>El agente entrena 100% en el navegador con Q-learning tabular. El objetivo es adivinar números de 4 dígitos sin repetir y sin empezar en 0. Las recompensas se basan en la pista recibida (dígitos correctos y posición).</p>
+  <div class="mode-switch">
+    <div>
+      <h1>Juego "Adivina mi número" con un agente de RL</h1>
+      <p>El agente entrena 100% en el navegador con Q-learning tabular. El objetivo es adivinar números de 4 dígitos sin repetir y sin empezar en 0. Las recompensas se basan en la pista recibida (dígitos correctos y posición).</p>
+    </div>
+    <button id="themeToggle" class="secondary">Alternar modo claro/oscuro</button>
+  </div>
 
   <div class="card">
     <h2>1. Entrenar al agente</h2>
@@ -184,15 +286,44 @@
     <h2>2. Prueba: el agente intenta adivinar tu número</h2>
     <div class="grid two">
       <div>
-        <label for="secretInput">Escribe tu número secreto</label>
+        <label for="secretInput">Modo 1: escribe tu número secreto</label>
         <input id="secretInput" type="text" placeholder="Ej: 4821" />
         <div class="hint">Debe tener 4 dígitos únicos y no iniciar en 0.</div>
       </div>
-      <div style="display:flex;align-items:flex-end;">
+      <div style="display:flex;align-items:flex-end;gap:10px;">
         <button id="guessBtn">¡Deja que el agente lo adivine!</button>
       </div>
     </div>
     <div class="log" id="guessLog">Entrena al agente y luego escribe tu número para probarlo.</div>
+
+    <div class="grid two" style="margin-top:18px;align-items:flex-start;">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <label>Modo 2: dale pistas intento a intento</label>
+        <div class="inline-group">
+          <button id="startInteractiveBtn">Nueva sesión de pistas</button>
+          <span class="pill muted">El agente propondrá un número. Indica cuántos dígitos acertó (bien/mal colocados).</span>
+        </div>
+        <div class="inline-group">
+          <div>
+            <label>Sugerencia actual</label>
+            <div class="guess-display" id="currentGuess">----</div>
+          </div>
+          <div>
+            <label for="bullsInput">Bien colocados</label>
+            <input id="bullsInput" type="number" min="0" max="4" value="0" />
+          </div>
+          <div>
+            <label for="cowsInput">Mal colocados</label>
+            <input id="cowsInput" type="number" min="0" max="4" value="0" />
+          </div>
+          <button id="feedbackBtn" class="secondary">Enviar pista y siguiente intento</button>
+        </div>
+        <div class="hint">Ejemplo: si el agente dice 1234 y tu número es 1325, ingresa 2 bien colocados y 1 mal colocado.</div>
+      </div>
+      <div>
+        <div class="log" id="interactiveLog">Pulsa "Nueva sesión de pistas" para comenzar.</div>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -373,14 +504,41 @@
 
     const trainLog = document.getElementById("trainLog");
     const guessLog = document.getElementById("guessLog");
+    const interactiveLog = document.getElementById("interactiveLog");
     const progressBar = document.getElementById("progressBar");
     const episodesInfo = document.getElementById("episodesInfo");
     const successInfo = document.getElementById("successInfo");
     const attemptsInfo = document.getElementById("attemptsInfo");
+    const themeToggle = document.getElementById("themeToggle");
+    const currentGuessEl = document.getElementById("currentGuess");
+    const startInteractiveBtn = document.getElementById("startInteractiveBtn");
+    const feedbackBtn = document.getElementById("feedbackBtn");
+    const bullsInput = document.getElementById("bullsInput");
+    const cowsInput = document.getElementById("cowsInput");
+
+    let interactiveState = { active: false, candidates: [], lastGuess: null, steps: 0 };
 
     function appendTrainLog(message) {
       const timestamp = new Date().toLocaleTimeString();
       trainLog.textContent = `[${timestamp}] ${message}\n` + trainLog.textContent;
+    }
+
+    function appendInteractiveLog(message) {
+      const timestamp = new Date().toLocaleTimeString();
+      interactiveLog.textContent = `[${timestamp}] ${message}\n` + interactiveLog.textContent;
+    }
+
+    function applyTheme(theme) {
+      document.body.setAttribute("data-theme", theme);
+      localStorage.setItem("preferred-theme", theme);
+      themeToggle.textContent = theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro";
+    }
+
+    function initTheme() {
+      const stored = localStorage.getItem("preferred-theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const theme = stored || (prefersDark ? "dark" : "light");
+      applyTheme(theme);
     }
 
     function validateSecret(value) {
@@ -421,6 +579,8 @@
       document.getElementById("trainBtn").disabled = disabled;
       document.getElementById("resetBtn").disabled = disabled;
       document.getElementById("guessBtn").disabled = disabled;
+      startInteractiveBtn.disabled = disabled;
+      feedbackBtn.disabled = disabled;
     }
 
     function handleReset() {
@@ -430,6 +590,68 @@
       successInfo.textContent = "Tasa de acierto: 0%";
       attemptsInfo.textContent = "Intentos promedio: 0";
       appendTrainLog("Tabla Q reiniciada.");
+    }
+
+    function startInteractiveSession() {
+      interactiveState = { active: true, candidates: [...agent.allNumbers], lastGuess: null, steps: 0 };
+      bullsInput.value = 0;
+      cowsInput.value = 0;
+      currentGuessEl.textContent = "----";
+      interactiveLog.textContent = "Sesión iniciada. Usa los campos para indicar pistas del número secreto.";
+      requestNextGuess();
+    }
+
+    function requestNextGuess() {
+      if (!interactiveState.active) return;
+      if (!interactiveState.candidates.length) {
+        interactiveLog.textContent = "Sin candidatos consistentes. Verifica las pistas ingresadas.";
+        currentGuessEl.textContent = "----";
+        interactiveState.active = false;
+        return;
+      }
+      interactiveState.steps += 1;
+      const guess = agent.pickGuess(interactiveState.candidates, 0);
+      interactiveState.lastGuess = guess;
+      currentGuessEl.textContent = guess;
+      appendInteractiveLog(`Intento ${interactiveState.steps}: el agente propone ${guess}.`);
+    }
+
+    function handleFeedback() {
+      if (!interactiveState.active || !interactiveState.lastGuess) {
+        interactiveLog.textContent = "Inicia una sesión de pistas primero.";
+        return;
+      }
+
+      const bulls = Number(bullsInput.value);
+      const cows = Number(cowsInput.value);
+
+      if ([bulls, cows].some((n) => Number.isNaN(n) || n < 0 || n > 4) || bulls + cows > 4) {
+        interactiveLog.textContent = "Valores inválidos. Usa números entre 0 y 4 y que la suma no supere 4.";
+        return;
+      }
+
+      const feedback = { bulls, cows };
+      appendInteractiveLog(
+        `Pistas recibidas para ${interactiveState.lastGuess}: ${bulls} bien colocados, ${cows} mal colocados.`
+      );
+
+      if (bulls === 4) {
+        interactiveLog.textContent = `¡El agente acertó el número ${interactiveState.lastGuess}!`;
+        currentGuessEl.textContent = interactiveState.lastGuess;
+        interactiveState.active = false;
+        return;
+      }
+
+      interactiveState.candidates = filterCandidates(interactiveState.candidates, interactiveState.lastGuess, feedback);
+
+      if (!interactiveState.candidates.length) {
+        interactiveLog.textContent = "Sin candidatos consistentes tras las pistas. Revisa los valores ingresados.";
+        currentGuessEl.textContent = "----";
+        interactiveState.active = false;
+        return;
+      }
+
+      requestNextGuess();
     }
 
     function handleGuess() {
@@ -452,6 +674,14 @@
     document.getElementById("trainBtn").addEventListener("click", handleTrain);
     document.getElementById("resetBtn").addEventListener("click", handleReset);
     document.getElementById("guessBtn").addEventListener("click", handleGuess);
+    startInteractiveBtn.addEventListener("click", startInteractiveSession);
+    feedbackBtn.addEventListener("click", handleFeedback);
+    themeToggle.addEventListener("click", () => {
+      const current = document.body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      applyTheme(current);
+    });
+
+    initTheme();
   </script>
 </body>
 </html>
