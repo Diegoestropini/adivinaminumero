@@ -307,6 +307,13 @@
           <button id="startInteractiveBtn">Nueva sesión de pistas</button>
           <span class="pill muted">El agente propondrá un número y también guardará uno secreto. Se alternan los turnos.</span>
         </div>
+        <div class="inline-group">
+          <div>
+            <label for="agentSecretInput">Número del agente (opcional)</label>
+            <input id="agentSecretInput" type="text" placeholder="Déjalo vacío para uno aleatorio" />
+          </div>
+          <span class="hint">Si lo completas, el agente usará ese número secreto en la partida.</span>
+        </div>
         <div class="inline-group" style="align-items:center;">
           <label style="margin:0;">¿Quién empieza?</label>
           <label><input type="radio" name="starter" value="agent" checked /> El agente</label>
@@ -538,6 +545,7 @@
     const cowsInput = document.getElementById("cowsInput");
     const userGuessInput = document.getElementById("userGuessInput");
     const userGuessBtn = document.getElementById("userGuessBtn");
+    const agentSecretInput = document.getElementById("agentSecretInput");
 
     let interactiveState = { active: false, candidates: [], lastGuess: null, steps: 0 };
 
@@ -621,12 +629,20 @@
 
     function startInteractiveSession() {
       const starter = document.querySelector('input[name="starter"]:checked')?.value || "agent";
+      const chosenAgentSecret = agentSecretInput.value.trim();
+
+      if (chosenAgentSecret && !validateSecret(chosenAgentSecret)) {
+        interactiveLog.textContent = "El número del agente no es válido. Usa 4 dígitos únicos y sin empezar en 0.";
+        return;
+      }
+
+      const agentSecret = chosenAgentSecret || agent.allNumbers[Math.floor(Math.random() * agent.allNumbers.length)];
       interactiveState = {
         active: true,
         candidates: [...agent.allNumbers],
         lastGuess: null,
         steps: 0,
-        agentSecret: agent.allNumbers[Math.floor(Math.random() * agent.allNumbers.length)],
+        agentSecret,
         turn: starter,
         agentAttempts: 0,
         userAttempts: 0,
@@ -638,9 +654,9 @@
       userGuessInput.value = "";
       interactiveLog.textContent = "Sesión iniciada. Usa los campos para indicar pistas del número secreto.";
       appendInteractiveLog(
-        `Nueva partida. El agente ya eligió su número secreto. Empieza: ${
-          starter === "agent" ? "el agente" : "tú"
-        }.`
+        `Nueva partida. El agente usará ${
+          chosenAgentSecret ? "el número que elegiste" : "un número aleatorio"
+        }. Empieza: ${starter === "agent" ? "el agente" : "tú"}.`
       );
       if (starter === "agent") {
         requestNextGuess();
