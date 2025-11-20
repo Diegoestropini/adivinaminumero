@@ -507,6 +507,39 @@
         this.maxAttempts = 8;
       }
 
+      buildState(candidates, attemptsUsed) {
+        const size = candidates.length;
+        let sizeBucket = "5000+";
+        if (size <= 1) sizeBucket = "1";
+        else if (size <= 5) sizeBucket = "5";
+        else if (size <= 25) sizeBucket = "25";
+        else if (size <= 100) sizeBucket = "100";
+        else if (size <= 500) sizeBucket = "500";
+        else if (size <= 2000) sizeBucket = "2000";
+
+        const attemptsLeft = Math.max(this.maxAttempts - attemptsUsed, 0);
+        return `size:${sizeBucket}|left:${attemptsLeft}`;
+      }
+
+      expectedReduction(candidates, guess) {
+        const total = candidates.length;
+        if (!total) return 0;
+
+        const distribution = new Map();
+        for (const candidate of candidates) {
+          const { bulls, cows } = evaluateGuess(candidate, guess);
+          const key = `${bulls}-${cows}`;
+          distribution.set(key, (distribution.get(key) ?? 0) + 1);
+        }
+
+        const expectedRemaining = Array.from(distribution.values()).reduce(
+          (acc, count) => acc + (count * count) / total,
+          0
+        );
+
+        return total - expectedRemaining;
+      }
+
       setHyperParams({ alpha, gamma, epsilonStart, epsilonEnd, maxAttempts }) {
         this.alpha = Number(alpha);
         this.gamma = Number(gamma);
@@ -519,11 +552,11 @@
         this.qValues.clear();
       }
 
-      getQ(guess) {
-        return this.qValues.get(guess) ?? 0;
+      getQ(guess, state) {
+        return this.qValues.get(`${state}|${guess}`) ?? 0;
       }
 
-      pickGuess(candidates, exploration = this.epsilonStart) {
+      pickGuess(candidates, { exploration = this.epsilonStart, state, useHeuristic = false } = {}) {
         if (!candidates.length) {
           return null;
         }
@@ -533,21 +566,24 @@
         let best = [];
         let bestScore = -Infinity;
         for (const candidate of candidates) {
-          const value = this.getQ(candidate);
-          if (value > bestScore) {
-            bestScore = value;
+          const value = this.getQ(candidate, state);
+          const heuristic = useHeuristic ? this.expectedReduction(candidates, candidate) : 0;
+          const score = useHeuristic ? heuristic + value : value;
+          if (score > bestScore) {
+            bestScore = score;
             best = [candidate];
-          } else if (value === bestScore) {
+          } else if (score === bestScore) {
             best.push(candidate);
           }
         }
         return best[Math.floor(Math.random() * best.length)];
       }
 
-      updateQ(guess, reward, maxNext) {
-        const current = this.getQ(guess);
+      updateQ(guess, state, reward, maxNext) {
+        const key = `${state}|${guess}`;
+        const current = this.qValues.get(key) ?? 0;
         const updated = current + this.alpha * (reward + this.gamma * maxNext - current);
-        this.qValues.set(guess, updated);
+        this.qValues.set(key, updated);
       }
 
       runEpisode(secretNumber, exploration = this.epsilonStart) {
@@ -560,15 +596,21 @@
           if (!candidates.length) {
             break;
           }
-          attempts += 1;
-          const guess = this.pickGuess(candidates, exploration);
+          const state = this.buildState(candidates, attempts);
+          const guess = this.pickGuess(candidates, { exploration, state });
           if (!guess) break;
           const feedback = evaluateGuess(target, guess);
-          const reward =
-            10 * (feedback.bulls === 4 ? 1 : 0) + 0.8 * feedback.bulls + 0.3 * feedback.cows - 1;
+          const prevCount = candidates.length;
           candidates = filterCandidates(candidates, guess, feedback);
-          const maxNext = candidates.length ? Math.max(...candidates.map((c) => this.getQ(c))) : 0;
-          this.updateQ(guess, reward, maxNext);
+          const infoGain = prevCount ? (prevCount - candidates.length) / prevCount : 0;
+          const baseReward = feedback.bulls === 4 ? 50 : 2 * feedback.bulls + feedback.cows;
+          const infoReward = 15 * (infoGain - 0.4);
+          const reward = baseReward + infoReward - 1;
+          const attemptsAfter = attempts + 1;
+          const nextState = this.buildState(candidates, attemptsAfter);
+          const maxNext = candidates.length ? Math.max(...candidates.map((c) => this.getQ(c, nextState))) : 0;
+          this.updateQ(guess, state, reward, maxNext);
+          attempts = attemptsAfter;
           if (feedback.bulls === 4) {
             success = true;
             break;
@@ -619,7 +661,8 @@
         let solved = false;
 
         for (let step = 1; step <= this.maxAttempts; step++) {
-          const guess = this.pickGuess(candidates, 0); // política pura tras entrenamiento
+          const state = this.buildState(candidates, step - 1);
+          const guess = this.pickGuess(candidates, { exploration: 0, state, useHeuristic: true }); // política pura tras entrenamiento
           if (!guess) break;
           const feedback = evaluateGuess(secretNumber, guess);
           attemptsLog.push({ step, guess, feedback });
@@ -813,7 +856,13 @@
         return;
       }
       interactiveState.steps += 1;
-      const guess = agent.pickGuess(interactiveState.candidates, 0);
+      const attemptsUsed = interactiveState.agentAttempts;
+      const state = agent.buildState(interactiveState.candidates, attemptsUsed);
+      const guess = agent.pickGuess(interactiveState.candidates, {
+        exploration: 0,
+        state,
+        useHeuristic: true,
+      });
       interactiveState.lastGuess = guess;
       currentGuessEl.textContent = guess;
       appendInteractiveLog(`Intento ${interactiveState.steps}: el agente propone ${guess}.`, "agent");
