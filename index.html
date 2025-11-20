@@ -345,22 +345,9 @@
   </div>
 
   <div class="card">
-    <h2>2. Prueba: el agente intenta adivinar tu número</h2>
-    <div class="grid two">
-      <div>
-        <label for="secretInput">Modo 1: escribe tu número secreto</label>
-        <input id="secretInput" type="text" placeholder="Ej: 4821" />
-        <div class="hint">Debe tener 4 dígitos únicos y no iniciar en 0.</div>
-      </div>
-      <div style="display:flex;align-items:flex-end;gap:10px;">
-        <button id="guessBtn">¡Deja que el agente lo adivine!</button>
-      </div>
-    </div>
-    <div class="log" id="guessLog">Entrena al agente y luego escribe tu número para probarlo.</div>
-
-    <div class="grid two" style="margin-top:18px;align-items:flex-start;">
+    <h2>2. Juega por turnos contra el agente</h2>
+    <div class="grid two" style="align-items:flex-start;">
       <div style="display:flex;flex-direction:column;gap:10px;">
-        <label>Modo 2: juega por turnos contra el agente</label>
         <div class="inline-group">
           <button id="startInteractiveBtn">Nueva sesión de pistas</button>
           <span class="pill muted">El agente propondrá un número y también guardará uno secreto. Se alternan los turnos.</span>
@@ -680,7 +667,6 @@
     const agent = new RLAgent();
 
     const trainLog = document.getElementById("trainLog");
-    const guessLog = document.getElementById("guessLog");
     const interactiveLog = document.getElementById("interactiveLog");
     const progressBar = document.getElementById("progressBar");
     const episodesInfo = document.getElementById("episodesInfo");
@@ -791,7 +777,6 @@
     function toggleButtons(disabled) {
       document.getElementById("trainBtn").disabled = disabled;
       document.getElementById("resetBtn").disabled = disabled;
-      document.getElementById("guessBtn").disabled = disabled;
       startInteractiveBtn.disabled = disabled;
       feedbackBtn.disabled = disabled;
       userGuessBtn.disabled = disabled;
@@ -983,26 +968,8 @@
       requestNextGuess();
     }
 
-    function handleGuess() {
-      const secret = document.getElementById("secretInput").value.trim();
-      if (!validateSecret(secret)) {
-        guessLog.textContent = "Número inválido. Usa 4 dígitos únicos y no empieces en 0.";
-        return;
-      }
-
-      const { solved, attemptsLog } = agent.guessSecret(secret);
-      const lines = attemptsLog
-        .map(({ step, guess, feedback }) =>
-          `Intento ${step}: ${guess} -> ${feedback.bulls} bien colocados, ${feedback.cows} mal colocados`
-        )
-        .join("\n");
-
-      guessLog.textContent = lines + `\nResultado: ${solved ? "¡Adivinado!" : "No lo encontró a tiempo"}`;
-    }
-
     document.getElementById("trainBtn").addEventListener("click", handleTrain);
     document.getElementById("resetBtn").addEventListener("click", handleReset);
-    document.getElementById("guessBtn").addEventListener("click", handleGuess);
     startInteractiveBtn.addEventListener("click", startInteractiveSession);
     feedbackBtn.addEventListener("click", handleFeedback);
     userGuessBtn.addEventListener("click", handleUserGuess);
