@@ -375,15 +375,30 @@
     }
 
     function evaluateGuess(secret, guess) {
+      const s = String(secret);
+      const g = String(guess);
+
+      const secretCounts = new Map();
       let bulls = 0;
       let cows = 0;
+
       for (let i = 0; i < 4; i++) {
-        if (secret[i] === guess[i]) {
+        if (s[i] === g[i]) {
           bulls += 1;
-        } else if (secret.includes(guess[i])) {
-          cows += 1;
+        } else {
+          secretCounts.set(s[i], (secretCounts.get(s[i]) ?? 0) + 1);
         }
       }
+
+      for (let i = 0; i < 4; i++) {
+        if (s[i] === g[i]) continue;
+        const available = secretCounts.get(g[i]) ?? 0;
+        if (available > 0) {
+          cows += 1;
+          secretCounts.set(g[i], available - 1);
+        }
+      }
+
       return { bulls, cows };
     }
 
