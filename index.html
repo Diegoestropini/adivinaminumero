@@ -498,7 +498,7 @@
 
       pickGuess(candidates, exploration = this.epsilonStart) {
         if (!candidates.length) {
-          return this.allNumbers[Math.floor(Math.random() * this.allNumbers.length)];
+          return null;
         }
         if (Math.random() < exploration) {
           return candidates[Math.floor(Math.random() * candidates.length)];
@@ -530,10 +530,15 @@
         let success = false;
 
         while (attempts < this.maxAttempts) {
+          if (!candidates.length) {
+            break;
+          }
           attempts += 1;
           const guess = this.pickGuess(candidates, exploration);
+          if (!guess) break;
           const feedback = evaluateGuess(target, guess);
-          const reward = feedback.bulls * 2 + feedback.cows * 0.5 - 0.1;
+          const reward =
+            10 * (feedback.bulls === 4 ? 1 : 0) + 0.8 * feedback.bulls + 0.3 * feedback.cows - 1;
           candidates = filterCandidates(candidates, guess, feedback);
           const maxNext = candidates.length ? Math.max(...candidates.map((c) => this.getQ(c))) : 0;
           this.updateQ(guess, reward, maxNext);
@@ -588,6 +593,7 @@
 
         for (let step = 1; step <= this.maxAttempts; step++) {
           const guess = this.pickGuess(candidates, 0); // política pura tras entrenamiento
+          if (!guess) break;
           const feedback = evaluateGuess(secretNumber, guess);
           attemptsLog.push({ step, guess, feedback });
           if (feedback.bulls === 4) {
