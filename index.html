@@ -469,6 +469,33 @@
       return candidates.filter((cand) => isConsistent(cand, guess, feedback));
     }
 
+    function summarizeFeedbackPossibilities(candidates, guess, maxExamples = 3) {
+      const distribution = new Map();
+
+      for (const candidate of candidates) {
+        const { bulls, cows } = evaluateGuess(candidate, guess);
+        const key = `${bulls}-${cows}`;
+        const entry = distribution.get(key) ?? { count: 0, examples: [] };
+        entry.count += 1;
+        if (entry.examples.length < maxExamples) {
+          entry.examples.push(candidate);
+        }
+        distribution.set(key, entry);
+      }
+
+      const parts = Array.from(distribution.entries())
+        .sort((a, b) => b[1].count - a[1].count)
+        .map(([key, { count, examples }]) => {
+          const [bulls, cows] = key.split("-").map(Number);
+          const exampleText = examples.length ? ` Ejemplo: ${examples.join(", ")}` : "";
+          return `${count} candidatos darían ${bulls} bien colocados y ${cows} mal colocados.${exampleText}`;
+        });
+
+      return parts.length
+        ? `Posibilidades consistentes con pistas previas para ${guess}: ${parts.join(" | ")}`
+        : "No quedaban candidatos antes de aplicar esta pista.";
+    }
+
     class RLAgent {
       constructor() {
         this.allNumbers = allCandidates();
@@ -837,8 +864,12 @@
       );
 
       if (!updatedCandidates.length) {
+        const explanation = summarizeFeedbackPossibilities(
+          interactiveState.candidates,
+          interactiveState.lastGuess
+        );
         appendInteractiveLog(
-          "Las pistas no son consistentes con los intentos anteriores. Revisa los valores e inténtalo de nuevo.",
+          `Las pistas no son consistentes con los intentos anteriores. Revisa los valores e inténtalo de nuevo. ${explanation}`,
           "info"
         );
         return;
