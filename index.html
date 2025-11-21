@@ -682,7 +682,7 @@
     const userGuessBtn = document.getElementById("userGuessBtn");
     const agentSecretInput = document.getElementById("agentSecretInput");
 
-    let interactiveState = { active: false, candidates: [], lastGuess: null, steps: 0 };
+    let interactiveState = { active: false, candidates: [], lastGuess: null, steps: 0, tieBreaker: null };
 
     resetInteractiveLog('Pulsa "Nueva sesión de pistas" para comenzar.');
 
@@ -814,6 +814,7 @@
         agentAttempts: 0,
         userAttempts: 0,
         winner: null,
+        tieBreaker: null,
       };
       resetFeedbackInputs();
       currentGuessEl.textContent = "----";
@@ -880,13 +881,38 @@
         "user"
       );
 
+      const attemptNumber = interactiveState.agentAttempts + 1;
+
       if (bulls === 4) {
+        interactiveState.agentAttempts = attemptNumber;
+        currentGuessEl.textContent = interactiveState.lastGuess;
+
+        if (interactiveState.tieBreaker?.leader === "usuario") {
+          interactiveState.winner = "empate";
+          interactiveState.active = false;
+          appendInteractiveLog(
+            `¡El agente acertó el número ${interactiveState.lastGuess} en su intento ${attemptNumber}! La partida termina en empate.`,
+            "agent"
+          );
+          return;
+        }
+
+        if (interactiveState.userAttempts < attemptNumber) {
+          interactiveState.tieBreaker = { leader: "agente", limit: attemptNumber };
+          appendInteractiveLog(
+            `¡El agente acertó el número ${interactiveState.lastGuess} en su intento ${attemptNumber}! Tienes tu intento ${attemptNumber} para intentar empatar.`,
+            "agent"
+          );
+          interactiveState.turn = "user";
+          promptUserTurn();
+          return;
+        }
+
         interactiveState.winner = "agente";
         appendInteractiveLog(
           `¡El agente acertó el número ${interactiveState.lastGuess}! (Gana el agente)`,
           "agent"
         );
-        currentGuessEl.textContent = interactiveState.lastGuess;
         interactiveState.active = false;
         return;
       }
@@ -910,7 +936,21 @@
       }
 
       interactiveState.candidates = updatedCandidates;
-      interactiveState.agentAttempts += 1;
+      interactiveState.agentAttempts = attemptNumber;
+
+      if (
+        interactiveState.tieBreaker?.leader === "usuario" &&
+        interactiveState.agentAttempts >= interactiveState.tieBreaker.limit
+      ) {
+        interactiveState.winner = "usuario";
+        interactiveState.active = false;
+        appendInteractiveLog(
+          `El agente no logró empatar en su intento ${interactiveState.agentAttempts}. Gana el usuario.`,
+          "info"
+        );
+        currentGuessEl.textContent = "----";
+        return;
+      }
 
       if (interactiveState.agentAttempts >= agent.maxAttempts) {
         interactiveState.winner = "usuario";
@@ -941,16 +981,52 @@
 
       const feedback = evaluateGuess(interactiveState.agentSecret, guess);
       interactiveState.userAttempts += 1;
+      const attemptNumber = interactiveState.userAttempts;
       appendInteractiveLog(
         `Tu intento ${interactiveState.userAttempts}: ${guess} -> ${feedback.bulls} bien colocados, ${feedback.cows} mal colocados.`,
         "user"
       );
 
       if (feedback.bulls === 4) {
+        currentGuessEl.textContent = guess;
+
+        if (interactiveState.tieBreaker?.leader === "agente") {
+          interactiveState.winner = "empate";
+          interactiveState.active = false;
+          appendInteractiveLog(
+            `¡Adivinaste en tu intento ${attemptNumber} y empataste la partida!`,
+            "user"
+          );
+          return;
+        }
+
+        if (interactiveState.agentAttempts < attemptNumber) {
+          interactiveState.tieBreaker = { leader: "usuario", limit: attemptNumber };
+          appendInteractiveLog(
+            `¡Adivinaste el número del agente (${guess}) en tu intento ${attemptNumber}! El agente tiene su intento ${attemptNumber} para buscar el empate.`,
+            "user"
+          );
+          interactiveState.turn = "agent";
+          requestNextGuess();
+          return;
+        }
+
         interactiveState.winner = "usuario";
         interactiveState.active = false;
-        currentGuessEl.textContent = guess;
         appendInteractiveLog(`¡Adivinaste el número del agente (${guess})! Ganas la partida.`, "user");
+        return;
+      }
+
+      if (
+        interactiveState.tieBreaker?.leader === "agente" &&
+        interactiveState.userAttempts >= interactiveState.tieBreaker.limit
+      ) {
+        interactiveState.active = false;
+        interactiveState.winner = "agente";
+        appendInteractiveLog(
+          `No lograste empatar en tu intento ${interactiveState.userAttempts}. Gana el agente esta vez.`,
+          "agent"
+        );
         return;
       }
 
