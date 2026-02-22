@@ -6,7 +6,7 @@
   <title>Adivina mi número - RL en el navegador</title>
   <style>
     :root {
-      font-family: "Segoe UI", Tahoma, sans-serif;
+      font-family: "Segoe UI Variable Text", "Segoe UI", Tahoma, sans-serif;
       line-height: 1.5;
       color: var(--text-primary);
       background: var(--bg-primary);
@@ -22,6 +22,15 @@
       --log-bg: #0f172a;
       --log-text: #e2e8f0;
       --progress-bg: #e2e8f0;
+      --status-idle-bg: #94a3b81a;
+      --status-idle-border: #64748b66;
+      --status-idle-text: #475569;
+      --status-ok-bg: #22c55e1a;
+      --status-ok-border: #22c55e66;
+      --status-ok-text: #15803d;
+      --status-run-bg: #f59e0b1a;
+      --status-run-border: #f59e0b66;
+      --status-run-text: #b45309;
     }
 
     [data-theme="dark"] {
@@ -42,28 +51,65 @@
     body {
       margin: 0 auto;
       max-width: 1100px;
-      padding: 32px 24px 56px;
+      padding: 36px 24px 64px;
       background: var(--bg-primary);
       color: var(--text-primary);
       transition: background 0.2s ease, color 0.2s ease;
     }
 
     h1 {
+      font-family: "Bahnschrift", "Segoe UI Variable Display", "Trebuchet MS", sans-serif;
+      margin-top: 0;
       margin-bottom: 0.25rem;
+      letter-spacing: 0.3px;
     }
 
     h2 {
-      margin-top: 2rem;
+      font-family: "Bahnschrift", "Segoe UI Variable Display", "Trebuchet MS", sans-serif;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      letter-spacing: 0.2px;
     }
 
     .card {
       background: var(--bg-secondary);
-      border-radius: 12px;
-      padding: 20px;
+      border-radius: 14px;
+      padding: 24px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
-      margin-top: 16px;
-      transition: background 0.2s ease, border 0.2s ease, box-shadow 0.2s ease;
+      margin-top: 18px;
+      transition: background 0.2s ease, border 0.2s ease, box-shadow 0.2s ease, transform 0.16s ease, opacity 0.16s ease;
+    }
+
+    .card.active {
+      border: 1px solid #2563eb88;
+      box-shadow: 0 16px 34px rgba(37, 99, 235, 0.22);
+      transform: translateY(-1px);
+    }
+
+    .card.muted {
+      opacity: 0.76;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 4px;
+      flex-wrap: wrap;
+    }
+
+    .section-status {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid #2563eb66;
+      background: #2563eb14;
+      color: #1d4ed8;
     }
 
     .grid {
@@ -93,6 +139,15 @@
       box-sizing: border-box;
       background: var(--bg-primary);
       color: var(--text-primary);
+    }
+
+    input[type="number"]:focus-visible,
+    input[type="text"]:focus-visible,
+    input[type="radio"]:focus-visible,
+    button:focus-visible {
+      outline: 3px solid #f59e0b;
+      outline-offset: 2px;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.24);
     }
 
     input::placeholder {
@@ -133,11 +188,22 @@
       filter: brightness(1.05);
     }
 
+    button.loading {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      box-shadow: 0 10px 20px rgba(217, 119, 6, 0.32);
+    }
+
+    button.turn-invalid {
+      background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+      box-shadow: none;
+      opacity: 0.72;
+    }
+
     .metrics {
       display: flex;
       gap: 14px;
       flex-wrap: wrap;
-      margin-top: 8px;
+      margin-top: 12px;
     }
 
     .pill {
@@ -167,14 +233,50 @@
       border: 1px solid var(--border);
     }
 
+    .log-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .chip-btn {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: none;
+    }
+
+    .chip-btn.active {
+      border-color: #2563eb66;
+      background: #2563eb14;
+      color: #1d4ed8;
+    }
+
+    .chip-btn.clear {
+      border-color: #ef444466;
+      background: #ef44441a;
+      color: #b91c1c;
+    }
+
     .log-entry {
       display: flex;
       gap: 10px;
-      padding: 10px;
+      padding: 12px;
       border-radius: 10px;
       margin-bottom: 10px;
       border: 1px solid var(--border);
       background: rgba(148, 163, 184, 0.1);
+    }
+
+    .log-entry.hidden {
+      display: none;
     }
 
     .log-entry.agent {
@@ -211,13 +313,26 @@
     .log-body {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 6px;
       color: var(--log-text);
+      width: 100%;
+    }
+
+    .log-meta {
+      display: flex;
+      justify-content: flex-end;
+      border-bottom: 1px dashed #64748b55;
+      padding-bottom: 4px;
     }
 
     .log-time {
       font-size: 12px;
       color: var(--text-muted);
+      font-family: "Consolas", monospace;
+    }
+
+    .log-message {
+      color: var(--log-text);
     }
 
     .progress {
@@ -235,6 +350,7 @@
       height: 100%;
       background: linear-gradient(135deg, #22c55e, #16a34a);
       transition: width 0.2s ease;
+      width: 0%;
     }
 
     .hint {
@@ -248,7 +364,7 @@
       gap: 12px;
       justify-content: space-between;
       flex-wrap: wrap;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     .pill.muted {
@@ -288,6 +404,76 @@
       text-align: center;
       box-shadow: var(--shadow);
     }
+
+    .top-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .status-indicator {
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 700;
+      border: 1px solid var(--status-idle-border);
+      background: var(--status-idle-bg);
+      color: var(--status-idle-text);
+      font-size: 13px;
+    }
+
+    .status-indicator.training {
+      border-color: var(--status-run-border);
+      background: var(--status-run-bg);
+      color: var(--status-run-text);
+    }
+
+    .status-indicator.trained {
+      border-color: var(--status-ok-border);
+      background: var(--status-ok-bg);
+      color: var(--status-ok-text);
+    }
+
+    .status-indicator.not-ready {
+      border-color: var(--status-idle-border);
+      background: var(--status-idle-bg);
+      color: var(--status-idle-text);
+    }
+
+    .train-actions {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .train-hint {
+      margin-top: 16px;
+    }
+
+    .train-status {
+      margin-top: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .play-grid {
+      align-items: flex-start;
+    }
+
+    .play-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .inline-center {
+      align-items: center;
+    }
+
+    .label-inline {
+      margin: 0;
+    }
   </style>
 </head>
 <body>
@@ -296,11 +482,17 @@
       <h1>Juego "Adivina mi número" con un agente de RL</h1>
       <p>El agente entrena 100% en el navegador con Q-learning tabular. El objetivo es adivinar números de 4 dígitos sin repetir y sin empezar en 0. Las recompensas se basan en la pista recibida (dígitos correctos y posición).</p>
     </div>
-    <button id="themeToggle" class="secondary">Alternar modo claro/oscuro</button>
+    <div class="top-status">
+      <span id="modelStatus" class="status-indicator not-ready">Entrenado: No</span>
+      <button id="themeToggle" class="secondary">Alternar modo claro/oscuro</button>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>1. Entrenar al agente</h2>
+  <div class="card active" id="trainCard">
+    <div class="card-head">
+      <h2>1. Entrenar al agente</h2>
+      <span class="section-status" id="trainSectionStatus">Seccion activa</span>
+    </div>
     <div class="grid two">
       <div>
         <label for="episodes">Episodios</label>
@@ -326,17 +518,18 @@
         <label for="maxAttempts">Intentos máximos por episodio</label>
         <input id="maxAttempts" type="number" min="4" max="12" step="1" value="8" />
       </div>
-      <div style="display:flex;align-items:flex-end;gap:10px;">
+      <div class="train-actions">
         <button id="trainBtn">Entrenar agente</button>
-        <button id="resetBtn" style="background:linear-gradient(135deg,#94a3b8,#64748b);">Reiniciar Q</button>
+        <button id="resetBtn" class="secondary">Reiniciar Q</button>
       </div>
     </div>
 
-    <div style="margin-top:16px;" class="hint">Durante el entrenamiento cada episodio genera un número secreto aleatorio. El agente gana más recompensa cuando acierta dígitos y posición, y una leve penalización por cada intento usado.</div>
+    <div class="hint train-hint">Durante el entrenamiento cada episodio genera un número secreto aleatorio. El agente gana más recompensa cuando acierta dígitos y posición, y una leve penalización por cada intento usado.</div>
 
     <div class="progress" aria-label="Progreso de entrenamiento">
-      <span id="progressBar" style="width: 0%"></span>
+      <span id="progressBar"></span>
     </div>
+    <div id="trainStatusText" class="train-status">Estado: listo para entrenar.</div>
     <div class="metrics">
       <div class="pill" id="episodesInfo">0 episodios</div>
       <div class="pill" id="successInfo">Tasa de acierto: 0%</div>
@@ -344,10 +537,13 @@
     </div>
   </div>
 
-  <div class="card">
-    <h2>2. Juega por turnos contra el agente</h2>
-    <div class="grid two" style="align-items:flex-start;">
-      <div style="display:flex;flex-direction:column;gap:10px;">
+  <div class="card muted" id="playCard">
+    <div class="card-head">
+      <h2>2. Juega por turnos contra el agente</h2>
+      <span class="section-status" id="playSectionStatus">Seccion atenuada</span>
+    </div>
+    <div class="grid two play-grid">
+      <div class="play-col">
         <div class="inline-group">
           <button id="startInteractiveBtn">Nueva sesión de pistas</button>
           <span class="pill muted">El agente propondrá un número y también guardará uno secreto. Se alternan los turnos.</span>
@@ -359,8 +555,8 @@
           </div>
           <span class="hint">Si lo completas, el agente usará ese número secreto en la partida.</span>
         </div>
-        <div class="inline-group" style="align-items:center;">
-          <label style="margin:0;">¿Quién empieza?</label>
+        <div class="inline-group inline-center">
+          <label class="label-inline">¿Quién empieza?</label>
           <label><input type="radio" name="starter" value="agent" checked /> El agente</label>
           <label><input type="radio" name="starter" value="user" /> Tú</label>
         </div>
@@ -389,12 +585,19 @@
         <div class="hint">Ejemplo: si el agente dice 1234 y tu número es 1325, ingresa 2 bien colocados y 1 mal colocado.</div>
       </div>
       <div>
+        <div class="log-controls">
+          <button type="button" class="chip-btn active" data-log-filter="all">Todos</button>
+          <button type="button" class="chip-btn" data-log-filter="agent">Agente</button>
+          <button type="button" class="chip-btn" data-log-filter="user">Usuario</button>
+          <button type="button" class="chip-btn" data-log-filter="info">Sistema</button>
+          <button type="button" class="chip-btn clear" id="clearLogBtn">Limpiar</button>
+        </div>
         <div class="log" id="interactiveLog" aria-live="polite"></div>
       </div>
     </div>
   </div>
 
-  <div class="card">
+  <div class="card muted" id="logCard">
     <h2>Bitácora</h2>
     <div class="log" id="trainLog">Listo para entrenar.</div>
   </div>
@@ -672,8 +875,12 @@
     const episodesInfo = document.getElementById("episodesInfo");
     const successInfo = document.getElementById("successInfo");
     const attemptsInfo = document.getElementById("attemptsInfo");
+    const modelStatus = document.getElementById("modelStatus");
+    const trainStatusText = document.getElementById("trainStatusText");
     const themeToggle = document.getElementById("themeToggle");
     const currentGuessEl = document.getElementById("currentGuess");
+    const trainBtn = document.getElementById("trainBtn");
+    const resetBtn = document.getElementById("resetBtn");
     const startInteractiveBtn = document.getElementById("startInteractiveBtn");
     const feedbackBtn = document.getElementById("feedbackBtn");
     const bullsInput = document.getElementById("bullsInput");
@@ -681,8 +888,17 @@
     const userGuessInput = document.getElementById("userGuessInput");
     const userGuessBtn = document.getElementById("userGuessBtn");
     const agentSecretInput = document.getElementById("agentSecretInput");
+    const trainCard = document.getElementById("trainCard");
+    const playCard = document.getElementById("playCard");
+    const logCard = document.getElementById("logCard");
+    const trainSectionStatus = document.getElementById("trainSectionStatus");
+    const playSectionStatus = document.getElementById("playSectionStatus");
+    const clearLogBtn = document.getElementById("clearLogBtn");
+    const filterButtons = Array.from(document.querySelectorAll("[data-log-filter]"));
 
     let interactiveState = { active: false, candidates: [], lastGuess: null, steps: 0, tieBreaker: null };
+    let logFilter = "all";
+    let isTraining = false;
 
     resetInteractiveLog('Pulsa "Nueva sesión de pistas" para comenzar.');
 
@@ -702,16 +918,23 @@
       const body = document.createElement("div");
       body.className = "log-body";
 
+      const meta = document.createElement("div");
+      meta.className = "log-meta";
+
       const timestamp = document.createElement("span");
       timestamp.className = "log-time";
       timestamp.textContent = new Date().toLocaleTimeString();
 
       const text = document.createElement("span");
+      text.className = "log-message";
       text.textContent = message;
 
-      body.append(timestamp, text);
+      meta.append(timestamp);
+      body.append(meta, text);
       entry.append(badge, body);
+      entry.dataset.role = role;
       interactiveLog.prepend(entry);
+      applyLogFilter();
     }
 
     function resetInteractiveLog(message) {
@@ -728,6 +951,71 @@
       document.body.setAttribute("data-theme", theme);
       localStorage.setItem("preferred-theme", theme);
       themeToggle.textContent = theme === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro";
+    }
+
+    function setActiveSection(section) {
+      const trainActive = section === "train";
+      const playActive = section === "play";
+
+      trainCard.classList.toggle("active", trainActive);
+      trainCard.classList.toggle("muted", !trainActive);
+      playCard.classList.toggle("active", playActive);
+      playCard.classList.toggle("muted", !playActive);
+      logCard.classList.toggle("muted", section !== "train" && section !== "play");
+
+      trainSectionStatus.textContent = trainActive ? "Seccion activa" : "Seccion atenuada";
+      playSectionStatus.textContent = playActive ? "Seccion activa" : "Seccion atenuada";
+    }
+
+    function updateTrainingUIState(state, details = "") {
+      modelStatus.classList.remove("training", "trained", "not-ready");
+
+      if (state === "training") {
+        modelStatus.classList.add("training");
+        modelStatus.textContent = "Entrenado: En progreso";
+      } else if (state === "trained") {
+        modelStatus.classList.add("trained");
+        modelStatus.textContent = "Entrenado: Si";
+      } else {
+        modelStatus.classList.add("not-ready");
+        modelStatus.textContent = "Entrenado: No";
+      }
+
+      if (details) {
+        trainStatusText.textContent = details;
+      }
+    }
+
+    function syncButtonState(button, enabled, disabledLabel, enabledLabel) {
+      button.disabled = !enabled;
+      button.classList.toggle("turn-invalid", !enabled && !isTraining);
+      button.textContent = enabled ? enabledLabel : disabledLabel;
+    }
+
+    function refreshTurnButtons() {
+      if (isTraining) return;
+      const canFeedback = interactiveState.active && interactiveState.turn === "agent" && Boolean(interactiveState.lastGuess);
+      const canUserGuess = interactiveState.active && interactiveState.turn === "user";
+      syncButtonState(feedbackBtn, canFeedback, "Espera turno del agente", "Enviar pista y siguiente intento");
+      syncButtonState(userGuessBtn, canUserGuess, "Espera tu turno", "Comprobar mi intento");
+    }
+
+    function setTrainButtonLoading(loading) {
+      isTraining = loading;
+      trainBtn.classList.toggle("loading", loading);
+      trainBtn.textContent = loading ? "Entrenando..." : "Entrenar agente";
+    }
+
+    function applyLogFilter() {
+      const entries = Array.from(interactiveLog.querySelectorAll(".log-entry"));
+      for (const entry of entries) {
+        const role = entry.dataset.role || "info";
+        const visible = logFilter === "all" || role === logFilter;
+        entry.classList.toggle("hidden", !visible);
+      }
+      for (const button of filterButtons) {
+        button.classList.toggle("active", button.dataset.logFilter === logFilter);
+      }
     }
 
     function initTheme() {
@@ -753,6 +1041,9 @@
       const maxAttempts = Number(document.getElementById("maxAttempts").value) || 8;
 
       agent.setHyperParams({ alpha, gamma, epsilonStart, epsilonEnd, maxAttempts });
+      setActiveSection("train");
+      setTrainButtonLoading(true);
+      updateTrainingUIState("training", "Estado: entrenando...");
 
       appendTrainLog(
         `Entrenamiento iniciado: ${episodes} episodios, ε ${epsilonStart} → ${epsilonEnd}, α=${alpha}, γ=${gamma}.`
@@ -764,6 +1055,7 @@
         episodesInfo.textContent = `${episode} / ${episodes} episodios`;
         successInfo.textContent = `Tasa de acierto: ${successRate.toFixed(1)}%`;
         attemptsInfo.textContent = `Intentos promedio: ${avgAttempts.toFixed(2)}`;
+        trainStatusText.textContent = `Estado: entrenando... ${progress.toFixed(1)}%`;
       });
 
       appendTrainLog(
@@ -771,15 +1063,22 @@
           1
         )}%). Intentos prom.: ${stats.avgAttempts.toFixed(2)}.`
       );
+      setTrainButtonLoading(false);
+      updateTrainingUIState("trained", "Estado: entrenamiento completado.");
       toggleButtons(false);
+      refreshTurnButtons();
     }
 
     function toggleButtons(disabled) {
-      document.getElementById("trainBtn").disabled = disabled;
-      document.getElementById("resetBtn").disabled = disabled;
+      trainBtn.disabled = disabled;
+      resetBtn.disabled = disabled;
       startInteractiveBtn.disabled = disabled;
-      feedbackBtn.disabled = disabled;
-      userGuessBtn.disabled = disabled;
+      if (disabled) {
+        feedbackBtn.disabled = true;
+        userGuessBtn.disabled = true;
+      } else {
+        refreshTurnButtons();
+      }
     }
 
     function handleReset() {
@@ -788,10 +1087,14 @@
       episodesInfo.textContent = "0 episodios";
       successInfo.textContent = "Tasa de acierto: 0%";
       attemptsInfo.textContent = "Intentos promedio: 0";
+      updateTrainingUIState("idle", "Estado: listo para entrenar.");
       appendTrainLog("Tabla Q reiniciada.");
+      setActiveSection("train");
+      refreshTurnButtons();
     }
 
     function startInteractiveSession() {
+      setActiveSection("play");
       const starter = document.querySelector('input[name="starter"]:checked')?.value || "agent";
       const chosenAgentSecret = agentSecretInput.value.trim();
 
@@ -830,15 +1133,18 @@
       } else {
         promptUserTurn();
       }
+      refreshTurnButtons();
     }
 
     function requestNextGuess() {
       if (!interactiveState.active || interactiveState.turn !== "agent") return;
+      setActiveSection("play");
       resetFeedbackInputs();
       if (!interactiveState.candidates.length) {
         appendInteractiveLog("Sin candidatos consistentes. Verifica las pistas ingresadas.");
         currentGuessEl.textContent = "----";
         interactiveState.active = false;
+        refreshTurnButtons();
         return;
       }
       interactiveState.steps += 1;
@@ -852,13 +1158,16 @@
       interactiveState.lastGuess = guess;
       currentGuessEl.textContent = guess;
       appendInteractiveLog(`Intento ${interactiveState.steps}: el agente propone ${guess}.`, "agent");
+      refreshTurnButtons();
     }
 
     function promptUserTurn() {
       if (!interactiveState.active || interactiveState.turn !== "user") return;
+      setActiveSection("play");
       resetFeedbackInputs();
       currentGuessEl.textContent = "Tu turno";
       appendInteractiveLog("Es tu turno: ingresa un número para intentar adivinar al agente.");
+      refreshTurnButtons();
     }
 
     function handleFeedback() {
@@ -905,6 +1214,7 @@
           );
           interactiveState.turn = "user";
           promptUserTurn();
+          refreshTurnButtons();
           return;
         }
 
@@ -914,6 +1224,7 @@
           "agent"
         );
         interactiveState.active = false;
+        refreshTurnButtons();
         return;
       }
 
@@ -949,6 +1260,7 @@
           "info"
         );
         currentGuessEl.textContent = "----";
+        refreshTurnButtons();
         return;
       }
 
@@ -960,11 +1272,13 @@
           "info"
         );
         currentGuessEl.textContent = "----";
+        refreshTurnButtons();
         return;
       }
 
       interactiveState.turn = "user";
       promptUserTurn();
+      refreshTurnButtons();
     }
 
     function handleUserGuess() {
@@ -997,6 +1311,7 @@
             `¡Adivinaste en tu intento ${attemptNumber} y empataste la partida!`,
             "user"
           );
+          refreshTurnButtons();
           return;
         }
 
@@ -1008,12 +1323,14 @@
           );
           interactiveState.turn = "agent";
           requestNextGuess();
+          refreshTurnButtons();
           return;
         }
 
         interactiveState.winner = "usuario";
         interactiveState.active = false;
         appendInteractiveLog(`¡Adivinaste el número del agente (${guess})! Ganas la partida.`, "user");
+        refreshTurnButtons();
         return;
       }
 
@@ -1027,6 +1344,7 @@
           `No lograste empatar en tu intento ${interactiveState.userAttempts}. Gana el agente esta vez.`,
           "agent"
         );
+        refreshTurnButtons();
         return;
       }
 
@@ -1037,15 +1355,17 @@
           "Agotaste tus intentos sin adivinar el número del agente. Gana el agente esta vez.",
           "agent"
         );
+        refreshTurnButtons();
         return;
       }
 
       interactiveState.turn = "agent";
       requestNextGuess();
+      refreshTurnButtons();
     }
 
-    document.getElementById("trainBtn").addEventListener("click", handleTrain);
-    document.getElementById("resetBtn").addEventListener("click", handleReset);
+    trainBtn.addEventListener("click", handleTrain);
+    resetBtn.addEventListener("click", handleReset);
     startInteractiveBtn.addEventListener("click", startInteractiveSession);
     feedbackBtn.addEventListener("click", handleFeedback);
     userGuessBtn.addEventListener("click", handleUserGuess);
@@ -1053,8 +1373,20 @@
       const current = document.body.getAttribute("data-theme") === "dark" ? "light" : "dark";
       applyTheme(current);
     });
+    clearLogBtn.addEventListener("click", () => {
+      resetInteractiveLog("Bitacora limpiada.");
+    });
+    for (const button of filterButtons) {
+      button.addEventListener("click", () => {
+        logFilter = button.dataset.logFilter;
+        applyLogFilter();
+      });
+    }
 
     initTheme();
+    setActiveSection("train");
+    updateTrainingUIState("idle", "Estado: listo para entrenar.");
+    refreshTurnButtons();
   </script>
 </body>
 </html>
