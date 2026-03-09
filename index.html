@@ -504,6 +504,133 @@
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), var(--shadow);
     }
 
+    .suggestion-panel {
+      align-items: stretch;
+      gap: 16px;
+      padding: 18px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at top right, rgba(37, 99, 235, 0.14), transparent 34%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(219, 234, 254, 0.36));
+      border: 1px solid rgba(37, 99, 235, 0.16);
+      box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+    }
+
+    [data-theme="dark"] .suggestion-panel {
+      background:
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.2), transparent 34%),
+        linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8));
+      border-color: rgba(96, 165, 250, 0.22);
+      box-shadow: 0 20px 38px rgba(0, 0, 0, 0.34);
+    }
+
+    .suggestion-card {
+      flex: 1 1 280px;
+      min-width: 220px;
+      padding: 18px;
+      border-radius: 22px;
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.42));
+      border: 1px solid rgba(255, 255, 255, 0.42);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    [data-theme="dark"] .suggestion-card {
+      background: linear-gradient(160deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.74));
+      border-color: rgba(148, 163, 184, 0.16);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .suggestion-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -32px -50px auto;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.16), transparent 68%);
+      pointer-events: none;
+    }
+
+    .suggestion-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.12);
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .suggestion-title {
+      margin: 0 0 6px;
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .suggestion-copy {
+      margin: 0 0 14px;
+      font-size: 0.94rem;
+      color: var(--text-muted);
+      max-width: 28ch;
+    }
+
+    .suggestion-card .guess-display {
+      min-width: 0;
+      width: 100%;
+      padding: 20px 22px;
+      border-radius: 20px;
+      background:
+        linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(255, 255, 255, 0.9)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.35), transparent);
+      border: 1px solid rgba(37, 99, 235, 0.22);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 16px 28px rgba(37, 99, 235, 0.12);
+      position: relative;
+      z-index: 1;
+    }
+
+    [data-theme="dark"] .suggestion-card .guess-display {
+      background:
+        linear-gradient(135deg, rgba(37, 99, 235, 0.24), rgba(15, 23, 42, 0.92)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent);
+      border-color: rgba(96, 165, 250, 0.28);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 18px 30px rgba(2, 6, 23, 0.34);
+    }
+
+    .suggestion-form {
+      flex: 1 1 320px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .suggestion-inputs {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+
+    .suggestion-actions {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .suggestion-actions button {
+      width: 100%;
+      min-height: 52px;
+    }
+
     .top-status {
       display: flex;
       align-items: center;
@@ -576,6 +703,286 @@
       gap: 14px;
     }
 
+    #playCard {
+      padding: 20px 22px;
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top left, rgba(34, 211, 238, 0.16), transparent 26%),
+        radial-gradient(circle at top right, rgba(244, 114, 182, 0.12), transparent 22%),
+        linear-gradient(145deg, rgba(8, 15, 31, 0.96), rgba(18, 29, 56, 0.94));
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      box-shadow:
+        0 0 0 1px rgba(34, 211, 238, 0.08),
+        0 22px 46px rgba(2, 6, 23, 0.46),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+
+    #playCard .card-head {
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    #playCard .play-grid {
+      gap: 12px;
+    }
+
+    #playCard .play-col {
+      gap: 10px;
+    }
+
+    #playCard .inline-group {
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(10, 19, 38, 0.84), rgba(18, 30, 58, 0.74));
+      border: 1px solid rgba(56, 189, 248, 0.14);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 0 22px rgba(14, 165, 233, 0.06);
+    }
+
+    #playCard .pill {
+      padding: 9px 11px;
+      min-height: auto;
+      font-size: 0.88rem;
+      background: rgba(8, 15, 31, 0.72);
+      border-color: rgba(34, 211, 238, 0.2);
+      color: #d9faff;
+      box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.04);
+    }
+
+    #playCard .hint {
+      font-size: 13px;
+      color: #93c5fd;
+    }
+
+    #playCard input[type="number"],
+    #playCard input[type="text"] {
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      background: rgba(4, 10, 24, 0.92);
+      border-color: rgba(34, 211, 238, 0.2);
+      color: #ecfeff;
+      box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.05), 0 0 18px rgba(8, 145, 178, 0.06);
+    }
+
+    #playCard button {
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      background: linear-gradient(135deg, #0ea5e9, #2563eb 56%, #7c3aed);
+      box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.18), 0 10px 22px rgba(37, 99, 235, 0.28), 0 0 24px rgba(14, 165, 233, 0.18);
+    }
+
+    #playCard .log-controls {
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    #playCard .chip-btn {
+      padding: 7px 10px;
+      font-size: 12px;
+      background: rgba(6, 12, 26, 0.82);
+      border-color: rgba(56, 189, 248, 0.2);
+      color: #c4f1ff;
+    }
+
+    #playCard .log {
+      padding: 12px;
+      border-radius: 16px;
+      max-height: 260px;
+      background: linear-gradient(180deg, rgba(3, 7, 18, 0.94), rgba(10, 16, 31, 0.98));
+      border-color: rgba(56, 189, 248, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 0 30px rgba(6, 182, 212, 0.08);
+    }
+
+    #playCard .log-entry {
+      gap: 8px;
+      padding: 9px 10px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      background: linear-gradient(145deg, rgba(12, 18, 36, 0.92), rgba(15, 26, 49, 0.8));
+      border-color: rgba(56, 189, 248, 0.12);
+    }
+
+    #playCard .log-badge {
+      min-width: 64px;
+      padding: 5px 8px;
+      font-size: 12px;
+    }
+
+    #playCard .log-body {
+      gap: 4px;
+    }
+
+    #playCard .log-time {
+      font-size: 11px;
+    }
+
+    #playCard .suggestion-panel {
+      gap: 12px;
+      padding: 12px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at top left, rgba(34, 211, 238, 0.16), transparent 34%),
+        linear-gradient(145deg, rgba(8, 20, 40, 0.92), rgba(18, 34, 62, 0.86));
+      border-color: rgba(34, 211, 238, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 0 34px rgba(34, 211, 238, 0.08);
+    }
+
+    #playCard .suggestion-card {
+      min-width: 190px;
+      padding: 12px;
+      border-radius: 18px;
+      background: linear-gradient(160deg, rgba(3, 10, 24, 0.9), rgba(14, 28, 52, 0.82));
+      border-color: rgba(125, 211, 252, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 0 28px rgba(59, 130, 246, 0.12);
+    }
+
+    #playCard .suggestion-kicker {
+      margin-bottom: 8px;
+      padding: 5px 8px;
+      font-size: 10px;
+      background: rgba(34, 211, 238, 0.12);
+      color: #67e8f9;
+      box-shadow: 0 0 18px rgba(34, 211, 238, 0.14);
+    }
+
+    #playCard .suggestion-title {
+      font-size: 1rem;
+      margin-bottom: 4px;
+      color: #f0f9ff;
+    }
+
+    #playCard .suggestion-copy {
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+      max-width: 32ch;
+      color: #93c5fd;
+    }
+
+    #playCard .guess-display,
+    #playCard .suggestion-card .guess-display {
+      font-size: clamp(1.55rem, 3.2vw, 2.4rem);
+      letter-spacing: 3px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      min-width: 148px;
+      background:
+        linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(59, 130, 246, 0.18)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent);
+      border-color: rgba(103, 232, 249, 0.28);
+      color: #ecfeff;
+      text-shadow: 0 0 14px rgba(34, 211, 238, 0.28);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 28px rgba(14, 165, 233, 0.14);
+    }
+
+    #playCard .suggestion-form {
+      gap: 10px;
+      flex: 1 1 260px;
+    }
+
+    #playCard .suggestion-inputs {
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+
+    #playCard .suggestion-actions button {
+      min-height: 44px;
+      background: linear-gradient(135deg, #06b6d4, #2563eb 52%, #ec4899);
+      box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.16), 0 12px 26px rgba(37, 99, 235, 0.3), 0 0 26px rgba(236, 72, 153, 0.16);
+    }
+
+    #playCard .turn-row {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: minmax(0, 1.18fr) minmax(240px, 0.82fr);
+      align-items: stretch;
+    }
+
+    #playCard .user-guess-panel {
+      align-items: stretch;
+      justify-content: space-between;
+    }
+
+    #playCard .user-guess-panel > div:first-child {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    #playCard .user-guess-panel button {
+      min-height: 44px;
+      white-space: nowrap;
+      align-self: flex-end;
+    }
+
+    #playCard::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.04), transparent),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 36%);
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 92%);
+    }
+
+    #playCard h2,
+    #playCard .section-status,
+    #playCard .play-col label,
+    #playCard .chip-btn.active,
+    #playCard .log-message,
+    #playCard .log-time,
+    #playCard .label-inline {
+      position: relative;
+      z-index: 1;
+    }
+
+    #playCard h2 {
+      color: #f0f9ff;
+      text-shadow: 0 0 16px rgba(56, 189, 248, 0.16);
+    }
+
+    #playCard .section-status {
+      border-color: rgba(34, 211, 238, 0.3);
+      background: rgba(14, 165, 233, 0.12);
+      color: #67e8f9;
+      box-shadow: 0 0 18px rgba(34, 211, 238, 0.1);
+    }
+
+    #playCard .play-col label,
+    #playCard .label-inline {
+      color: #dbeafe;
+    }
+
+    #playCard .chip-btn.active {
+      border-color: rgba(103, 232, 249, 0.44);
+      background: rgba(34, 211, 238, 0.14);
+      color: #67e8f9;
+      box-shadow: 0 0 18px rgba(34, 211, 238, 0.12);
+    }
+
+    #playCard .chip-btn.clear {
+      border-color: rgba(244, 114, 182, 0.34);
+      background: rgba(244, 114, 182, 0.12);
+      color: #f9a8d4;
+    }
+
+    #playCard .log-entry.agent {
+      border-color: rgba(34, 211, 238, 0.3);
+      background: linear-gradient(145deg, rgba(8, 27, 46, 0.94), rgba(8, 39, 68, 0.78));
+    }
+
+    #playCard .log-entry.user {
+      border-color: rgba(236, 72, 153, 0.26);
+      background: linear-gradient(145deg, rgba(46, 10, 36, 0.9), rgba(73, 17, 61, 0.74));
+    }
+
+    #playCard .log-entry.info {
+      border-color: rgba(148, 163, 184, 0.18);
+      background: linear-gradient(145deg, rgba(20, 28, 46, 0.88), rgba(29, 39, 59, 0.76));
+    }
     .inline-center {
       align-items: center;
     }
@@ -610,6 +1017,24 @@
 
       .guess-display {
         min-width: 100%;
+      }
+
+      .suggestion-panel,
+      .suggestion-card {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      #playCard {
+        padding: 18px;
+      }
+
+      #playCard .log {
+        max-height: 220px;
+      }
+
+      #playCard .turn-row {
+        grid-template-columns: 1fr;
       }
 
       .inline-group {
@@ -703,27 +1128,37 @@
           <label><input type="radio" name="starter" value="agent" checked /> El agente</label>
           <label><input type="radio" name="starter" value="user" /> Tú</label>
         </div>
-        <div class="inline-group">
-          <div>
-            <label>Sugerencia actual</label>
-            <div class="guess-display" id="currentGuess">----</div>
+        <div class="turn-row">
+          <div class="inline-group suggestion-panel">
+            <div class="suggestion-card">
+              <div class="suggestion-kicker">Turno del agente</div>
+              <p class="suggestion-title">Sugerencia actual</p>
+              <p class="suggestion-copy">Este es el numero que el agente propone en este turno.</p>
+              <div class="guess-display" id="currentGuess">----</div>
+            </div>
+            <div class="suggestion-form">
+              <div class="suggestion-inputs">
+                <div>
+                  <label for="bullsInput">Bien colocados</label>
+                  <input id="bullsInput" type="number" min="0" max="4" value="0" />
+                </div>
+                <div>
+                  <label for="cowsInput">Mal colocados</label>
+                  <input id="cowsInput" type="number" min="0" max="4" value="0" />
+                </div>
+              </div>
+              <div class="suggestion-actions">
+                <button id="feedbackBtn" class="highlight">Enviar pista y siguiente intento</button>
+              </div>
+            </div>
           </div>
-          <div>
-            <label for="bullsInput">Bien colocados</label>
-            <input id="bullsInput" type="number" min="0" max="4" value="0" />
+          <div class="inline-group user-guess-panel">
+            <div>
+              <label for="userGuessInput">Tu intento al número del agente</label>
+              <input id="userGuessInput" type="text" placeholder="Ej: 5731" />
+            </div>
+            <button id="userGuessBtn">Comprobar mi intento</button>
           </div>
-          <div>
-            <label for="cowsInput">Mal colocados</label>
-            <input id="cowsInput" type="number" min="0" max="4" value="0" />
-          </div>
-          <button id="feedbackBtn" class="highlight">Enviar pista y siguiente intento</button>
-        </div>
-        <div class="inline-group">
-          <div>
-            <label for="userGuessInput">Tu intento al número del agente</label>
-            <input id="userGuessInput" type="text" placeholder="Ej: 5731" />
-          </div>
-          <button id="userGuessBtn">Comprobar mi intento</button>
         </div>
         <div class="hint">Ejemplo: si el agente dice 1234 y tu número es 1325, ingresa 2 bien colocados y 1 mal colocado.</div>
       </div>
