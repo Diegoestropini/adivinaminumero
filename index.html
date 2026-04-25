@@ -1874,16 +1874,21 @@
           const feedback = evaluateGuess(target, guess);
           const prevCount = candidates.length;
           candidates = filterCandidates(candidates, guess, feedback);
-          const infoGain = prevCount ? (prevCount - candidates.length) / prevCount : 0;
-          const baseReward = feedback.bulls === 4 ? 50 : 2 * feedback.bulls + feedback.cows;
-          const infoReward = 15 * (infoGain - 0.4);
-          const reward = baseReward + infoReward - 1;
           const attemptsAfter = attempts + 1;
+          const solvedNow = feedback.bulls === 4;
+          const infoReward = prevCount
+            ? 12 * Math.log2(prevCount / Math.max(candidates.length, 1))
+            : 0;
+          const clueReward = feedback.bulls * 3 + feedback.cows * 1.2;
+          const speedReward = solvedNow ? 80 + 6 * (this.maxAttempts - attemptsAfter) : 0;
+          const failurePenalty = !solvedNow && attemptsAfter >= this.maxAttempts ? -35 : 0;
+          const stepPenalty = 1.5 + attemptsAfter * 0.35;
+          const reward = infoReward + clueReward + speedReward + failurePenalty - stepPenalty;
           const nextState = this.buildState(candidates, attemptsAfter);
           const maxNext = candidates.length ? Math.max(...candidates.map((c) => this.getQ(c, nextState))) : 0;
           this.updateQ(guess, state, reward, maxNext);
           attempts = attemptsAfter;
-          if (feedback.bulls === 4) {
+          if (solvedNow) {
             success = true;
             break;
           }
