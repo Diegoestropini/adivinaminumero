@@ -350,13 +350,13 @@
     }
 
     .log-entry.agent {
-      border-color: rgba(var(--accent-rgb), 0.34);
-      background: rgba(var(--accent-rgb), 0.12);
+      border-color: rgba(96, 165, 250, 0.36);
+      background: rgba(96, 165, 250, 0.12);
     }
 
     .log-entry.user {
-      border-color: rgba(var(--accent-rgb), 0.28);
-      background: rgba(var(--accent-rgb), 0.14);
+      border-color: rgba(245, 158, 11, 0.38);
+      background: rgba(245, 158, 11, 0.13);
     }
 
     .log-badge {
@@ -369,11 +369,11 @@
     }
 
     .log-entry.agent .log-badge {
-      background: linear-gradient(135deg, var(--accent-deep), var(--accent));
+      background: linear-gradient(135deg, #1d4ed8, #38bdf8);
     }
 
     .log-entry.user .log-badge {
-      background: linear-gradient(135deg, var(--accent-mid), var(--accent-deep));
+      background: linear-gradient(135deg, #b45309, #f59e0b);
     }
 
     .log-entry.info .log-badge {
@@ -1373,13 +1373,29 @@
     }
 
     #playCard .log-entry.agent {
-      border-color: rgba(96, 165, 250, 0.24);
-      background: rgba(21, 38, 48, 0.78);
+      border-color: rgba(56, 189, 248, 0.42);
+      background:
+        linear-gradient(90deg, rgba(56, 189, 248, 0.16), transparent 42%),
+        rgba(15, 32, 44, 0.84);
+      box-shadow: inset 4px 0 0 rgba(56, 189, 248, 0.62);
     }
 
     #playCard .log-entry.user {
-      border-color: rgba(var(--accent-rgb), 0.24);
-      background: rgba(18, 42, 30, 0.72);
+      border-color: rgba(251, 191, 36, 0.44);
+      background:
+        linear-gradient(90deg, rgba(251, 191, 36, 0.18), transparent 42%),
+        rgba(44, 31, 12, 0.82);
+      box-shadow: inset 4px 0 0 rgba(251, 191, 36, 0.66);
+    }
+
+    #playCard .log-entry.agent .log-badge {
+      background: linear-gradient(135deg, #1d4ed8, #38bdf8);
+      color: #f8fbff;
+    }
+
+    #playCard .log-entry.user .log-badge {
+      background: linear-gradient(135deg, #b45309, #f59e0b);
+      color: #fff7ed;
     }
 
     #playCard .log-entry.info {
@@ -1489,6 +1505,22 @@
 
     [data-theme="light"] #playCard .log-entry {
       background: rgba(246, 250, 248, 0.86);
+    }
+
+    [data-theme="light"] #playCard .log-entry.agent {
+      border-color: rgba(37, 99, 235, 0.32);
+      background:
+        linear-gradient(90deg, rgba(37, 99, 235, 0.12), transparent 44%),
+        rgba(239, 246, 255, 0.94);
+      box-shadow: inset 4px 0 0 rgba(37, 99, 235, 0.62);
+    }
+
+    [data-theme="light"] #playCard .log-entry.user {
+      border-color: rgba(217, 119, 6, 0.34);
+      background:
+        linear-gradient(90deg, rgba(217, 119, 6, 0.13), transparent 44%),
+        rgba(255, 247, 237, 0.96);
+      box-shadow: inset 4px 0 0 rgba(217, 119, 6, 0.62);
     }
 
     @media (max-width: 699px) {
