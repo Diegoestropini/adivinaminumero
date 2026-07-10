@@ -923,8 +923,15 @@
     #playCard .turn-row {
       display: grid;
       gap: 12px;
-      grid-template-columns: minmax(0, 1.18fr) minmax(240px, 0.82fr);
+      grid-template-columns: minmax(0, 1fr);
       align-items: stretch;
+    }
+
+    #playCard .turn-row > *,
+    #playCard .suggestion-form,
+    #playCard .agent-proposal,
+    #playCard .user-guess-panel > div {
+      min-width: 0;
     }
 
     #playCard .user-guess-panel {
@@ -1523,6 +1530,239 @@
       box-shadow: inset 4px 0 0 rgba(217, 119, 6, 0.62);
     }
 
+    /* Focused workflow: simpler training, explicit turns and flatter play surfaces. */
+    #trainCard > .grid.two {
+      grid-template-columns: minmax(220px, 0.7fr) minmax(260px, 1.3fr);
+      align-items: end;
+    }
+
+    .advanced-settings {
+      margin-top: 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+
+    .advanced-settings summary {
+      width: fit-content;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 750;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .advanced-settings summary:hover {
+      color: var(--text-primary);
+    }
+
+    .advanced-settings > .hint {
+      margin: 10px 0 12px;
+    }
+
+    .advanced-grid {
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: var(--surface-soft);
+      border: 1px solid var(--surface-muted-border);
+    }
+
+    .turn-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 16px;
+      padding: 12px 14px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: var(--radius-md);
+      background: rgba(18, 31, 34, 0.76);
+      position: relative;
+      z-index: 1;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .turn-banner > span:last-child {
+      display: grid;
+      gap: 2px;
+    }
+
+    .turn-banner strong {
+      font-size: 0.94rem;
+      color: var(--text-primary);
+    }
+
+    .turn-banner small {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .turn-dot {
+      width: 10px;
+      height: 10px;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      background: #94a3b8;
+      box-shadow: 0 0 0 5px rgba(148, 163, 184, 0.1);
+    }
+
+    .turn-banner.agent {
+      border-color: rgba(56, 189, 248, 0.3);
+      background: rgba(14, 59, 77, 0.42);
+    }
+
+    .turn-banner.agent .turn-dot {
+      background: #38bdf8;
+      box-shadow: 0 0 0 5px rgba(56, 189, 248, 0.12);
+    }
+
+    .turn-banner.user {
+      border-color: rgba(251, 191, 36, 0.3);
+      background: rgba(78, 52, 12, 0.38);
+    }
+
+    .turn-banner.user .turn-dot {
+      background: #fbbf24;
+      box-shadow: 0 0 0 5px rgba(251, 191, 36, 0.12);
+    }
+
+    .turn-banner.finished {
+      border-color: rgba(var(--accent-rgb), 0.32);
+      background: rgba(var(--accent-rgb), 0.1);
+    }
+
+    .turn-banner.finished .turn-dot {
+      background: var(--accent);
+      box-shadow: 0 0 0 5px rgba(var(--accent-rgb), 0.12);
+    }
+
+    .game-setup {
+      display: grid;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    .session-intro,
+    .setup-options {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .session-intro .hint {
+      margin: 0;
+    }
+
+    .setup-options > div:first-child {
+      flex: 1 1 260px;
+    }
+
+    .starter-control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      color: var(--text-primary);
+    }
+
+    .starter-control legend {
+      float: left;
+      margin-right: 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .starter-control label {
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    #playCard .suggestion-panel,
+    #playCard .user-guess-panel {
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      background: rgba(16, 27, 30, 0.62);
+      border-radius: var(--radius-md);
+      box-shadow: none;
+    }
+
+    #playCard .suggestion-panel {
+      display: grid;
+      grid-template-columns: minmax(190px, 0.82fr) minmax(240px, 1.18fr);
+      align-items: center;
+      gap: 18px;
+      padding: 16px;
+    }
+
+    #playCard .agent-proposal {
+      min-width: 0;
+    }
+
+    #playCard .user-guess-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
+      padding: 16px;
+    }
+
+    #playCard .user-guess-panel button {
+      width: 100%;
+      align-self: stretch;
+    }
+
+    #playCard .guess-display,
+    #playCard .suggestion-card .guess-display {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(36px, 1fr));
+      gap: 8px;
+      padding: 0;
+      min-width: 0;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      text-shadow: none;
+    }
+
+    .digit-slot {
+      display: grid;
+      place-items: center;
+      min-height: 58px;
+      border-radius: 10px;
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      background: linear-gradient(180deg, rgba(96, 165, 250, 0.15), rgba(3, 10, 12, 0.96));
+      color: #d8ecff;
+      font-family: "Cascadia Mono", "SFMono-Regular", "Consolas", monospace;
+      font-size: clamp(1.45rem, 3vw, 2.15rem);
+      font-weight: 800;
+      line-height: 1;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    [data-theme="light"] .turn-banner {
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    [data-theme="light"] .turn-banner.agent {
+      background: rgba(224, 242, 254, 0.76);
+    }
+
+    [data-theme="light"] .turn-banner.user {
+      background: rgba(255, 247, 237, 0.86);
+    }
+
+    [data-theme="light"] #playCard .suggestion-panel,
+    [data-theme="light"] #playCard .user-guess-panel {
+      background: rgba(255, 255, 255, 0.62);
+      border-color: rgba(15, 23, 42, 0.1);
+    }
+
+    [data-theme="light"] .digit-slot {
+      border-color: rgba(37, 99, 235, 0.2);
+      background: linear-gradient(180deg, rgba(219, 234, 254, 0.92), rgba(255, 255, 255, 0.96));
+      color: #123045;
+    }
+
     @media (max-width: 699px) {
       body {
         padding: 18px 14px 40px;
@@ -1560,6 +1800,28 @@
         grid-template-columns: 1fr;
       }
 
+      #trainCard > .grid.two,
+      #playCard .suggestion-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .session-intro,
+      .setup-options,
+      .starter-control {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .session-intro #startInteractiveBtn,
+      .train-actions button {
+        width: 100%;
+      }
+
+      .starter-control legend {
+        float: none;
+        margin: 0 0 6px;
+      }
+
       .inline-group {
         padding: 12px;
       }
@@ -1595,38 +1857,45 @@
   <div class="card active" id="trainCard">
     <div class="card-head">
       <h2>1. Entrenar al agente</h2>
-      <span class="section-status" id="trainSectionStatus">Sección activa</span>
+      <span class="section-status" id="trainSectionStatus">Paso actual</span>
     </div>
     <div class="grid two">
       <div>
         <label for="episodes">Episodios</label>
         <input id="episodes" type="number" min="100" step="100" value="10000" />
       </div>
-      <div>
-        <label for="epsilonStart">Exploración inicial (ε)</label>
-        <input id="epsilonStart" type="number" min="0" max="1" step="0.05" value="0.8" />
-      </div>
-      <div>
-        <label for="epsilonEnd">Exploración final (ε)</label>
-        <input id="epsilonEnd" type="number" min="0" max="1" step="0.05" value="0.05" />
-      </div>
-      <div>
-        <label for="alpha">Tasa de aprendizaje (α)</label>
-        <input id="alpha" type="number" min="0" max="1" step="0.05" value="0.2" />
-      </div>
-      <div>
-        <label for="gamma">Factor de descuento (γ)</label>
-        <input id="gamma" type="number" min="0" max="1" step="0.05" value="0.9" />
-      </div>
-      <div>
-        <label for="maxAttempts">Intentos máximos por episodio</label>
-        <input id="maxAttempts" type="number" min="4" max="12" step="1" value="8" />
-      </div>
       <div class="train-actions">
         <button id="trainBtn">Entrenar agente</button>
         <button id="resetBtn" class="secondary">Reiniciar Q</button>
       </div>
     </div>
+
+    <details class="advanced-settings">
+      <summary>Opciones avanzadas</summary>
+      <p class="hint">Ajusta la exploración y el aprendizaje solo si quieres experimentar con el modelo.</p>
+      <div class="grid two advanced-grid">
+        <div>
+          <label for="epsilonStart">Exploración inicial (ε)</label>
+          <input id="epsilonStart" type="number" min="0" max="1" step="0.05" value="0.8" />
+        </div>
+        <div>
+          <label for="epsilonEnd">Exploración final (ε)</label>
+          <input id="epsilonEnd" type="number" min="0" max="1" step="0.05" value="0.05" />
+        </div>
+        <div>
+          <label for="alpha">Tasa de aprendizaje (α)</label>
+          <input id="alpha" type="number" min="0" max="1" step="0.05" value="0.2" />
+        </div>
+        <div>
+          <label for="gamma">Factor de descuento (γ)</label>
+          <input id="gamma" type="number" min="0" max="1" step="0.05" value="0.9" />
+        </div>
+        <div>
+          <label for="maxAttempts">Intentos máximos por episodio</label>
+          <input id="maxAttempts" type="number" min="4" max="12" step="1" value="8" />
+        </div>
+      </div>
+    </details>
 
     <div class="hint train-hint">Durante el entrenamiento, cada episodio genera un número secreto aleatorio. El agente obtiene más recompensa cuando acierta dígitos y posición, y recibe una penalización suave por cada intento consumido.</div>
 
@@ -1644,33 +1913,43 @@
   <div class="card muted" id="playCard">
     <div class="card-head">
       <h2>2. Juega por turnos contra el agente</h2>
-      <span class="section-status" id="playSectionStatus">Sección atenuada</span>
+      <span class="section-status" id="playSectionStatus">Siguiente paso</span>
+    </div>
+    <div class="turn-banner idle" id="turnBanner" aria-live="polite">
+      <span class="turn-dot" aria-hidden="true"></span>
+      <span>
+        <strong id="turnBannerTitle">Partida sin iniciar</strong>
+        <small id="turnBannerCopy">Crea una nueva sesión para comenzar.</small>
+      </span>
     </div>
     <div class="grid two play-grid">
       <div class="play-col">
-        <div class="inline-group">
+        <div class="game-setup">
+          <div class="session-intro">
           <button id="startInteractiveBtn">Nueva sesión de pistas</button>
-          <span class="pill muted">El agente propondrá un número y también guardará uno secreto. Los turnos se alternan automáticamente.</span>
-        </div>
-        <div class="inline-group">
-          <div>
-            <label for="agentSecretInput">Número del agente (opcional)</label>
-            <input id="agentSecretInput" type="text" placeholder="Déjalo vacío para uno aleatorio" />
+            <p class="hint">El agente propondrá un número y también guardará uno secreto. Los turnos se alternan automáticamente.</p>
           </div>
-          <span class="hint">Si lo completas, el agente usará ese número secreto durante toda la partida.</span>
-        </div>
-        <div class="inline-group inline-center">
-          <label class="label-inline">¿Quién empieza?</label>
-          <label><input type="radio" name="starter" value="agent" checked /> El agente</label>
-          <label><input type="radio" name="starter" value="user" /> Tú</label>
+          <div class="setup-options">
+            <div>
+              <label for="agentSecretInput">Número del agente (opcional)</label>
+              <input id="agentSecretInput" type="text" placeholder="Vacío para uno aleatorio" />
+            </div>
+            <fieldset class="starter-control">
+              <legend>¿Quién empieza?</legend>
+              <label><input type="radio" name="starter" value="agent" checked /> El agente</label>
+              <label><input type="radio" name="starter" value="user" /> Tú</label>
+            </fieldset>
+          </div>
         </div>
         <div class="turn-row">
-          <div class="inline-group suggestion-panel">
-            <div class="suggestion-card">
+          <section class="suggestion-panel" aria-labelledby="agentSuggestionTitle">
+            <div class="agent-proposal">
               <div class="suggestion-kicker">Turno del agente</div>
-              <p class="suggestion-title">Sugerencia actual</p>
-              <p class="suggestion-copy">Este es el numero que el agente propone en este turno.</p>
-              <div class="guess-display" id="currentGuess">----</div>
+              <p class="suggestion-title" id="agentSuggestionTitle">Sugerencia actual</p>
+              <p class="suggestion-copy">El número que el agente propone en este turno.</p>
+              <div class="guess-display" id="currentGuess" aria-label="Número propuesto">
+                <span class="digit-slot">–</span><span class="digit-slot">–</span><span class="digit-slot">–</span><span class="digit-slot">–</span>
+              </div>
             </div>
             <div class="suggestion-form">
               <div class="suggestion-inputs">
@@ -1687,14 +1966,14 @@
                 <button id="feedbackBtn" class="highlight">Enviar pista y siguiente intento</button>
               </div>
             </div>
-          </div>
-          <div class="inline-group user-guess-panel">
+          </section>
+          <section class="user-guess-panel" aria-labelledby="userGuessLabel">
             <div>
-              <label for="userGuessInput">Tu intento al número del agente</label>
+              <label for="userGuessInput" id="userGuessLabel">Tu intento al número del agente</label>
               <input id="userGuessInput" type="text" placeholder="Ej: 5731" />
             </div>
             <button id="userGuessBtn">Comprobar mi intento</button>
-          </div>
+          </section>
         </div>
         <div class="hint">Ejemplo: si el agente dice 1234 y tu número es 1325, ingresa 2 bien colocados y 1 mal colocado.</div>
       </div>
@@ -1998,6 +2277,9 @@
     const trainStatusText = document.getElementById("trainStatusText");
     const themeToggle = document.getElementById("themeToggle");
     const currentGuessEl = document.getElementById("currentGuess");
+    const turnBanner = document.getElementById("turnBanner");
+    const turnBannerTitle = document.getElementById("turnBannerTitle");
+    const turnBannerCopy = document.getElementById("turnBannerCopy");
     const trainBtn = document.getElementById("trainBtn");
     const resetBtn = document.getElementById("resetBtn");
     const startInteractiveBtn = document.getElementById("startInteractiveBtn");
@@ -2082,8 +2364,53 @@
       playCard.classList.toggle("muted", !playActive);
       logCard.classList.toggle("muted", section !== "train" && section !== "play");
 
-      trainSectionStatus.textContent = trainActive ? "Sección activa" : "Sección atenuada";
-      playSectionStatus.textContent = playActive ? "Sección activa" : "Sección atenuada";
+      trainSectionStatus.textContent = trainActive ? "Paso actual" : "Paso 1";
+      playSectionStatus.textContent = playActive ? "Paso actual" : "Siguiente paso";
+    }
+
+    function renderCurrentGuess(value = "") {
+      const guess = /^\d{4}$/.test(String(value)) ? String(value) : "––––";
+      const slots = Array.from(guess, (digit) => {
+        const slot = document.createElement("span");
+        slot.className = "digit-slot";
+        slot.textContent = digit;
+        return slot;
+      });
+      currentGuessEl.replaceChildren(...slots);
+      currentGuessEl.setAttribute(
+        "aria-label",
+        /^\d{4}$/.test(guess) ? `Número propuesto: ${guess.split("").join(" ")}` : "Número aún no propuesto"
+      );
+    }
+
+    function updateTurnBanner() {
+      turnBanner.classList.remove("idle", "agent", "user", "finished");
+
+      if (!interactiveState.active) {
+        if (interactiveState.winner) {
+          turnBanner.classList.add("finished");
+          turnBannerTitle.textContent =
+            interactiveState.winner === "empate"
+              ? "Partida terminada · Empate"
+              : `Partida terminada · Gana ${interactiveState.winner === "agente" ? "el agente" : "el usuario"}`;
+          turnBannerCopy.textContent = "Puedes iniciar una nueva sesión cuando quieras.";
+        } else {
+          turnBanner.classList.add("idle");
+          turnBannerTitle.textContent = "Partida sin iniciar";
+          turnBannerCopy.textContent = "Crea una nueva sesión para comenzar.";
+        }
+        return;
+      }
+
+      if (interactiveState.turn === "agent") {
+        turnBanner.classList.add("agent");
+        turnBannerTitle.textContent = "Turno del agente";
+        turnBannerCopy.textContent = "Revisa su propuesta e indica cuántos dígitos acertó.";
+      } else {
+        turnBanner.classList.add("user");
+        turnBannerTitle.textContent = "Tu turno";
+        turnBannerCopy.textContent = "Ingresa un número de cuatro dígitos para jugar.";
+      }
     }
 
     function updateTrainingUIState(state, details = "") {
@@ -2117,6 +2444,7 @@
       const canUserGuess = interactiveState.active && interactiveState.turn === "user";
       syncButtonState(feedbackBtn, canFeedback, "Espera turno del agente", "Enviar pista y siguiente intento");
       syncButtonState(userGuessBtn, canUserGuess, "Espera tu turno", "Comprobar mi intento");
+      updateTurnBanner();
     }
 
     function setTrainButtonLoading(loading) {
@@ -2239,7 +2567,7 @@
         tieBreaker: null,
       };
       resetFeedbackInputs();
-      currentGuessEl.textContent = "----";
+      renderCurrentGuess();
       userGuessInput.value = "";
       resetInteractiveLog("Sesión iniciada. Usa los campos para indicar pistas del número secreto.");
       appendInteractiveLog(
@@ -2261,7 +2589,7 @@
       resetFeedbackInputs();
       if (!interactiveState.candidates.length) {
         appendInteractiveLog("Sin candidatos consistentes. Verifica las pistas ingresadas.");
-        currentGuessEl.textContent = "----";
+        renderCurrentGuess();
         interactiveState.active = false;
         refreshTurnButtons();
         return;
@@ -2275,7 +2603,7 @@
         useHeuristic: true,
       });
       interactiveState.lastGuess = guess;
-      currentGuessEl.textContent = guess;
+      renderCurrentGuess(guess);
       appendInteractiveLog(`Intento ${interactiveState.steps}: el agente propone ${guess}.`, "agent");
       refreshTurnButtons();
     }
@@ -2284,7 +2612,7 @@
       if (!interactiveState.active || interactiveState.turn !== "user") return;
       setActiveSection("play");
       resetFeedbackInputs();
-      currentGuessEl.textContent = "Tu turno";
+      renderCurrentGuess();
       appendInteractiveLog("Es tu turno: ingresa un número para intentar adivinar al agente.");
       refreshTurnButtons();
     }
@@ -2313,7 +2641,7 @@
 
       if (bulls === 4) {
         interactiveState.agentAttempts = attemptNumber;
-        currentGuessEl.textContent = interactiveState.lastGuess;
+        renderCurrentGuess(interactiveState.lastGuess);
 
         if (interactiveState.tieBreaker?.leader === "usuario") {
           interactiveState.winner = "empate";
@@ -2322,6 +2650,7 @@
             `¡El agente acertó el número ${interactiveState.lastGuess} en su intento ${attemptNumber}! La partida termina en empate.`,
             "agent"
           );
+          refreshTurnButtons();
           return;
         }
 
@@ -2378,7 +2707,7 @@
           `El agente no logró empatar en su intento ${interactiveState.agentAttempts}. Gana el usuario.`,
           "info"
         );
-        currentGuessEl.textContent = "----";
+        renderCurrentGuess();
         refreshTurnButtons();
         return;
       }
@@ -2390,7 +2719,7 @@
           "El agente agotó sus intentos sin acertar tu número. ¡Ganaste la partida!",
           "info"
         );
-        currentGuessEl.textContent = "----";
+        renderCurrentGuess();
         refreshTurnButtons();
         return;
       }
@@ -2421,7 +2750,7 @@
       );
 
       if (feedback.bulls === 4) {
-        currentGuessEl.textContent = guess;
+        renderCurrentGuess(guess);
 
         if (interactiveState.tieBreaker?.leader === "agente") {
           interactiveState.winner = "empate";
