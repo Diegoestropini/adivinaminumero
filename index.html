@@ -1839,6 +1839,182 @@
         flex-basis: auto;
       }
     }
+    /* Visual fixes: contrast, intrinsic sizing and responsive spacing. */
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    .card-head h2 {
+      margin-bottom: 0;
+    }
+
+    .grid > *,
+    .setup-options > *,
+    .session-intro > *,
+    .log-body {
+      min-width: 0;
+    }
+
+    .metrics .pill {
+      box-sizing: border-box;
+      align-items: center;
+    }
+
+    .log-entry {
+      align-items: flex-start;
+    }
+
+    .log-badge {
+      flex-shrink: 0;
+    }
+
+    .log-body {
+      flex: 1;
+      width: auto;
+      overflow-wrap: anywhere;
+    }
+
+    .log-entry:last-child {
+      margin-bottom: 0;
+    }
+
+    #playCard .play-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .session-intro {
+      flex-wrap: wrap;
+    }
+
+    .session-intro .hint {
+      flex: 1 1 240px;
+    }
+
+    .session-intro #startInteractiveBtn {
+      flex-shrink: 0;
+    }
+
+    .setup-options {
+      flex-wrap: wrap;
+    }
+
+    #playCard .suggestion-panel {
+      grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    }
+
+    #playCard .guess-display {
+      letter-spacing: 0;
+    }
+
+    #playCard #startInteractiveBtn,
+    #playCard #userGuessBtn {
+      background: linear-gradient(135deg, #1e3d4a, #2b7890);
+      color: #f3fbff;
+    }
+
+    #trainBtn,
+    #playCard .suggestion-actions button {
+      background: linear-gradient(135deg, #36d370, #9defb5);
+      color: #04140b;
+    }
+
+    #trainBtn:disabled,
+    #resetBtn:disabled,
+    #playCard #startInteractiveBtn:disabled,
+    #playCard #userGuessBtn:disabled,
+    #playCard button:disabled {
+      background: var(--surface-muted);
+      border-color: var(--border);
+      color: var(--text-muted);
+      opacity: 1;
+      box-shadow: none;
+      text-shadow: none;
+    }
+
+    [data-theme="dark"] {
+      color-scheme: dark;
+    }
+
+    [data-theme="light"] {
+      color-scheme: light;
+    }
+
+    html:has(body[data-theme="light"]) {
+      background: #f4f8f6;
+      color-scheme: light;
+    }
+
+    [data-theme="light"] #playCard .guess-display {
+      background: transparent;
+    }
+
+    [data-theme="light"] .section-status,
+    [data-theme="light"] .metrics .pill::before,
+    [data-theme="light"] #themeToggle::before {
+      color: #166534;
+    }
+
+    [data-theme="light"] #playCard .section-status,
+    [data-theme="light"] #playCard .suggestion-kicker {
+      color: #1e40af;
+    }
+
+    [data-theme="light"] #playCard .chip-btn {
+      background: #ffffff;
+      color: var(--text-primary);
+      border-color: var(--border);
+    }
+
+    [data-theme="light"] #playCard .chip-btn.active {
+      background: #dcfce7;
+      border-color: #86cfa0;
+      color: #166534;
+      text-shadow: none;
+    }
+
+    [data-theme="light"] #playCard .chip-btn.clear {
+      background: #fff1f2;
+      border-color: #fda4af;
+      color: #9f1239;
+    }
+
+    [data-theme="light"] #logCard {
+      background: var(--bg-secondary);
+    }
+
+    @media (min-width: 1100px) {
+      #playCard .play-grid {
+        grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.8fr);
+      }
+    }
+
+    @media (max-width: 699px) {
+      .setup-options > div:first-child,
+      .session-intro .hint {
+        flex-basis: auto;
+      }
+
+      #playCard .suggestion-panel {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      #playCard .suggestion-inputs {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      #playCard .user-guess-panel button {
+        white-space: normal;
+      }
+
+      #playCard .log-entry {
+        flex-direction: column;
+      }
+
+      #playCard .log-body {
+        align-self: stretch;
+      }
+    }
   </style>
 </head>
 <body>
